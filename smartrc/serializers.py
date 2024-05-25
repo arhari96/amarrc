@@ -1,13 +1,13 @@
 from rest_framework import serializers
-from .models import FrontRcNew,BackRcNew
+from .models import NewRc,OldRc
 
 
-class FrontRcNewSerializer(serializers.ModelSerializer):
+class NewRcSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FrontRcNew
+        model = NewRc
         fields = "__all__"
 
-class BackRcNewSerializer(serializers.ModelSerializer):
+class OldRcSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BackRcNew
-        fields = "__all__"
+        model = OldRc
+        fields = "__all__"  

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FrontRcNew
+from .models import NewRc, OldRc
 
 # Register your models here.
-admin.site.register([FrontRcNew])
+admin.site.register([NewRc, OldRc])

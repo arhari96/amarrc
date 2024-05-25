@@ -19,11 +19,13 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from smartrc import views
+from smartrc.views import NewRcCreateView, OldRcCreateView, search_rc
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("frontrc/", views.create_frontrc, name="create_frontrc"),
-    path("frontrc/<str:reg_number>/", views.delete_frontrc, name="delete_frontrc"),
+    path("api/newrc/", NewRcCreateView.as_view(), name="newrc-create"),
+    path("api/oldrc/", OldRcCreateView.as_view(), name="oldrc-create"),
+    path("api/search_rc/", search_rc, name="search_rc"),
+    # path("frontrc/<str:reg_number>/", views.delete_frontrc, name="delete_frontrc"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
