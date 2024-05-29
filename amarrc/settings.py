@@ -128,6 +128,11 @@ STATIC_URL = "/static/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 FONTS_ROOT = os.path.join(BASE_DIR, "fonts")
+REACT_APP_BUILD_DIR = os.path.join(BASE_DIR, "webfrontend", "build")
+
+# Define the directories where Django will look for additional static files
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "webfrontend", "build", "static")]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

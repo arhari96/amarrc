@@ -5,6 +5,27 @@ from .models import NewRc, OldRc
 from .serializers import NewRcSerializer, OldRcSerializer
 from rest_framework.decorators import api_view
 from balance.models import Balance
+from django.views.generic import View
+import os
+from django.http import HttpResponse
+from django.conf import settings
+
+
+class ReactAppView(View):
+
+    def get(self, request):
+        try:
+
+            with open(os.path.join(settings.REACT_APP_BUILD_DIR, "index.html")) as file:
+                return HttpResponse(file.read())
+
+        except:
+            return HttpResponse(
+                """
+                index.html not found ! build your React app !!
+                """,
+                status=501,
+            )
 
 
 class NewRcCreateView(APIView):
