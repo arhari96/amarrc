@@ -7,4 +7,4 @@ class BalanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Balance
-        fields = ["id", "balance", "debit_amount", "date"]
+        fields = "__all__"

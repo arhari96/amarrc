@@ -21,11 +21,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 from smartrc.views import NewRcCreateView, OldRcCreateView, search_rc, delete_rc
 from balance.views import BalanceListView
-import smartrc.views as views
 from django.urls import path, re_path
+from django.views.static import serve
+
+
+def flutter_redirect(request, resource):
+    return serve(request, resource, settings.FLUTTER_WEB_APP)
+
 
 urlpatterns = [
-    re_path(r"^$", views.ReactAppView.as_view(), name="react-app-view"),
+    path("flutter_web_app/", lambda r: flutter_redirect(r, "index.html")),
+    path("flutter_web_app/<path:resource>", flutter_redirect),
+    re_path(r"^$", lambda r: flutter_redirect(r, "index.html")),
     path("admin/", admin.site.urls),
     path("api/new_create_rc/", NewRcCreateView.as_view(), name="newrc-create"),
     path("api/old_create_rc/", OldRcCreateView.as_view(), name="oldrc-create"),

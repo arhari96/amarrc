@@ -130,6 +130,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 FONTS_ROOT = os.path.join(BASE_DIR, "fonts")
 
+FLUTTER_WEB_APP = os.path.join(BASE_DIR, "flutter_web_app")
 REACT_APP_BUILD_DIR = os.path.join(BASE_DIR, "webfrontend", "build")
 
 # Define the directories where Django will look for additional static files
