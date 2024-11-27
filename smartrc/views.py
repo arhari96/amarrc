@@ -11,6 +11,13 @@ from django.http import HttpResponse
 from django.conf import settings
 
 
+class TestView(APIView):
+
+    def post(self, request):
+        print(request.data)
+        return Response({"message": "Hello, World!"})
+
+
 class ReactAppView(View):
 
     def get(self, request):

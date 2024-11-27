@@ -19,7 +19,13 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from smartrc.views import NewRcCreateView, OldRcCreateView, search_rc, delete_rc
+from smartrc.views import (
+    TestView,
+    NewRcCreateView,
+    OldRcCreateView,
+    search_rc,
+    delete_rc,
+)
 from balance.views import BalanceListView
 from django.urls import path, re_path
 from django.views.static import serve
@@ -30,6 +36,7 @@ def flutter_redirect(request, resource):
 
 
 urlpatterns = [
+    path("api/test/", TestView.as_view(), name="test"),
     path("flutter_web_app/", lambda r: flutter_redirect(r, "index.html")),
     path("flutter_web_app/<path:resource>", flutter_redirect),
     re_path(r"^$", lambda r: flutter_redirect(r, "index.html")),

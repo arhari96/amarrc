@@ -135,8 +135,6 @@ FONTS_ROOT = os.path.join(BASE_DIR, "fonts")
 FLUTTER_WEB_APP = os.path.join(BASE_DIR, "flutter_web_app")
 REACT_APP_BUILD_DIR = os.path.join(BASE_DIR, "webfrontend", "build")
 
-# Define the directories where Django will look for additional static files
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "webfrontend", "build", "static")]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
