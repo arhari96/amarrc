@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+import pymysql
+
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -77,15 +80,14 @@ WSGI_APPLICATION = "amarrc.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "cqdevinf_amarrc",
-        "USER": "cqdevinf_amarrc",
-        "PASSWORD": "HariBabu_@1996",
-        "HOST": "69.57.172.68",  # Set to 'localhost' or '127.0.0.1' if running locally
-        "PORT": "3306",  # Set to '3306' which is the default MySQL port
+        "NAME": "mjryknxf_amar_rc",
+        "HOST": "103.86.177.200",
+        "USER": "mjryknxf_hari",
+        "PASSWORD": "HariBabu_@1997",
+        "PORT": 3306,
     }
 }
 
