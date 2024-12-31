@@ -9,15 +9,20 @@ from django.views.generic import View
 import os
 from django.http import HttpResponse
 from django.conf import settings
-
+from django.views.decorators.csrf import csrf_exempt
 
 class TestView(APIView):
 
     def post(self, request):
         print(request.data)
         return Response({"message": "Hello, World!"})
-
-
+@api_view(['POST'])
+def fetchRegDetail(request):
+    reg_number = request.GET.get('reg_number')
+    print(reg_number)
+    data_from_api = [{"action":"verify_with_source","completed_at":"2024-12-31T16:51:51+05:30","created_at":"2024-12-31T16:51:51+05:30","group_id":"8e16424a-58fc-4ba4-ab20-5bc8e7c3c41e","request_id":"49ae5f12-a77d-442f-a5f6-0f850476f3e9","result":{"extraction_output":{"noc_valid_upto":null,"seating_capacity":"2","fitness_upto":"2033-05-16","variant":null,"registration_number":"TN59CZ1410","npermit_upto":null,"manufacturer_model":"PULSAR150 DTSI BSIV","standing_capacity":"0","status":"id_found","is_financed":true,"status_message":null,"number_of_cylinder":"1","colour":"E BLK CHOR","puc_valid_upto":"2024-10-21","vehicle_class":"2WN","permanent_address":"NO 4/190/2 KALIYAMMAN KOIVL STREET, VADIPATTI TK CHINNAMANAYAKKANPATTI, MADURAI, -625218","permit_no":"","father_name":"SEKAR","status_verfy_date":"2023-12-06","m_y_manufacturing":"2018-02","registration_date":"2018-05-17","gross_vehicle_weight":"274","registered_place":"VADIPATTI UO, Tamil Nadu","permit_validity_upto":null,"insurance_policy_no":null,"noc_details":"","npermit_issued_by":null,"sleeper_capacity":"0","current_address":"NO 4/190/2 KALIYAMMAN KOIVL STREET, VADIPATTI TK CHINNAMANAYAKKANPATTI, MADURAI, -625218","status_verification":"","permit_type":"","noc_status":null,"masked_name":false,"fuel_type":"PETROL","permit_validity_from":null,"owner_name":"JEYAMOORTHI S","puc_number":"","owner_mobile_no":"","blacklist_status":"","manufacturer":"BAJAJ AUTO LTD","permit_issue_date":null,"engine_number":"DHYWJL88975","chassis_number":"MD2A11CY7JWL35242","mv_tax_upto":"2033-05-16","body_type":"SOLO WITH PILLION","unladden_weight":"144","insurance_name":null,"owner_serial_number":"1","vehicle_category":"2WN","noc_issue_date":null,"npermit_no":"","cubic_capacity":"0.00","norms_type":null,"state":"Tamil Nadu","insurance_validity":"2025-09-23","financer":"ORANGE RETAIL FINANCE INDIA P","wheelbase":"1320"}},"status":"completed","task_id":"74f4c926-250c-43ca-9c53-453e87ceacd1","type":"ind_rc_plus"}]
+    vehicle_detail = data_from_api[0]['result']['extraction_output']
+    return Response(vehicle_detail, status=status.HTTP_200_OK)
 class ReactAppView(View):
 
     def get(self, request):
@@ -34,9 +39,9 @@ class ReactAppView(View):
                 status=501,
             )
 
-
 class NewRcCreateView(APIView):
 
+    @csrf_exempt
     def post(self, request, *args, **kwargs):
         serializer = NewRcSerializer(data=request.data)
         if serializer.is_valid():
