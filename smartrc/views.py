@@ -16,13 +16,31 @@ class TestView(APIView):
     def post(self, request):
         print(request.data)
         return Response({"message": "Hello, World!"})
+    
 @api_view(['POST'])
-def fetchRegDetail(request):
-    reg_number = request.GET.get('reg_number')
+def fetch_reg_detail(request):
+    # Extract the registration number from the request
+    reg_number = request.data.get('reg_number')
+    
+    if not reg_number:
+        return Response(
+            {"error": "Registration number is required."}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
     print(reg_number)
-    data_from_api = [{"action":"verify_with_source","completed_at":"2024-12-31T16:51:51+05:30","created_at":"2024-12-31T16:51:51+05:30","group_id":"8e16424a-58fc-4ba4-ab20-5bc8e7c3c41e","request_id":"49ae5f12-a77d-442f-a5f6-0f850476f3e9","result":{"extraction_output":{"noc_valid_upto":null,"seating_capacity":"2","fitness_upto":"2033-05-16","variant":null,"registration_number":"TN59CZ1410","npermit_upto":null,"manufacturer_model":"PULSAR150 DTSI BSIV","standing_capacity":"0","status":"id_found","is_financed":true,"status_message":null,"number_of_cylinder":"1","colour":"E BLK CHOR","puc_valid_upto":"2024-10-21","vehicle_class":"2WN","permanent_address":"NO 4/190/2 KALIYAMMAN KOIVL STREET, VADIPATTI TK CHINNAMANAYAKKANPATTI, MADURAI, -625218","permit_no":"","father_name":"SEKAR","status_verfy_date":"2023-12-06","m_y_manufacturing":"2018-02","registration_date":"2018-05-17","gross_vehicle_weight":"274","registered_place":"VADIPATTI UO, Tamil Nadu","permit_validity_upto":null,"insurance_policy_no":null,"noc_details":"","npermit_issued_by":null,"sleeper_capacity":"0","current_address":"NO 4/190/2 KALIYAMMAN KOIVL STREET, VADIPATTI TK CHINNAMANAYAKKANPATTI, MADURAI, -625218","status_verification":"","permit_type":"","noc_status":null,"masked_name":false,"fuel_type":"PETROL","permit_validity_from":null,"owner_name":"JEYAMOORTHI S","puc_number":"","owner_mobile_no":"","blacklist_status":"","manufacturer":"BAJAJ AUTO LTD","permit_issue_date":null,"engine_number":"DHYWJL88975","chassis_number":"MD2A11CY7JWL35242","mv_tax_upto":"2033-05-16","body_type":"SOLO WITH PILLION","unladden_weight":"144","insurance_name":null,"owner_serial_number":"1","vehicle_category":"2WN","noc_issue_date":null,"npermit_no":"","cubic_capacity":"0.00","norms_type":null,"state":"Tamil Nadu","insurance_validity":"2025-09-23","financer":"ORANGE RETAIL FINANCE INDIA P","wheelbase":"1320"}},"status":"completed","task_id":"74f4c926-250c-43ca-9c53-453e87ceacd1","type":"ind_rc_plus"}]
-    vehicle_detail = data_from_api[0]['result']['extraction_output']
-    return Response(vehicle_detail, status=status.HTTP_200_OK)
+    # Simulated API response
+    data_from_api= [{"action":"verify_with_source","completed_at":"2025-01-02T16:48:09+05:30","created_at":"2025-01-02T16:48:07+05:30","group_id":"8e16424a-58fc-4ba4-ab20-5bc8e7c3c41e","request_id":"5c1fd25e-f879-40df-88c8-c419dcc5eeab","result":{"extraction_output":{"noc_valid_upto":None,"seating_capacity":"2","fitness_upto":"2038-08-17","variant":None,"registration_number":"TN22DZ8174","npermit_upto":None,"manufacturer_model":"PULSAR NS 160","standing_capacity":"0","status":"id_found","is_financed":True,"status_message":None,"number_of_cylinder":"1","colour":"PEARL METALLIC WHITE","puc_valid_upto":"2024-08-17","vehicle_class":"2WN","permanent_address":"N NO 11 ESWARAN KOIL STREET, VENGADESHWARA APTS 2ND FLOOR, B BLOCK NO 19 ALANDUR, Chennai-600016","permit_no":"","father_name":"RAMAKRISHNAN A G","status_verfy_date":"2023-12-06","m_y_manufacturing":"2023-07","registration_date":"2023-08-18","gross_vehicle_weight":"303","registered_place":"MEENAMBAKKAM RTO, Tamil Nadu","permit_validity_upto":None,"insurance_policy_no":"MV819871","noc_details":"","npermit_issued_by":None,"sleeper_capacity":"0","current_address":"N NO 11 ESWARAN KOIL STREET, VENGADESHWARA APTS 2ND FLOOR, B BLOCK NO 19 ALANDUR, Chennai-600016","status_verification":"","permit_type":"","noc_status":None,"masked_name":False,"fuel_type":"PETROL","permit_validity_from":None,"owner_name":"HARI BABU A R","puc_number":"Newv4","owner_mobile_no":"","blacklist_status":"","manufacturer":"BAJAJ AUTO LTD","permit_issue_date":None,"engine_number":"JEXCPD91961","chassis_number":"MD2A92DXXPCD14211","mv_tax_upto":"2038-08-17","body_type":"SOLO WITH PILLION","unladden_weight":"153","insurance_name":"IFFCO TOKIO GENERAL INSURANCE CO. LTD.","owner_serial_number":"1","vehicle_category":"2WN","noc_issue_date":None,"npermit_no":"","cubic_capacity":"160.30","norms_type":"BHARAT STAGE VI","state":"Tamil Nadu","insurance_validity":"2028-08-15","financer":"BAJAJ AUTO FINANCE LTD","wheelbase":"1372"}},"status":"completed","task_id":"74f4c926-250c-43ca-9c53-453e87ceacd1","type":"ind_rc_plus"}]
+
+
+    try:
+        # Extract vehicle details from the simulated API response
+        vehicle_detail = data_from_api[0]['result']['extraction_output']
+        return Response(vehicle_detail, status=status.HTTP_200_OK)
+    except (IndexError, KeyError) as e:
+        return Response(
+            {"error": "Unexpected error processing vehicle details."}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 class ReactAppView(View):
 
     def get(self, request):

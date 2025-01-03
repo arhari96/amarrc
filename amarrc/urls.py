@@ -25,7 +25,7 @@ from smartrc.views import (
     OldRcCreateView,
     search_rc,
     delete_rc,
-    fetchRegDetail
+    fetch_reg_detail
 )
 from balance.views import BalanceListView
 from django.urls import path, re_path
@@ -47,7 +47,7 @@ urlpatterns = [
     path("api/search_rc/", search_rc, name="search_rc"),
     path("api/delete_rc/", delete_rc, name="delete-rc"),
     path("api/balance_list/", BalanceListView.as_view(), name="balance-list"),
-    path("api/reg_detail/",fetchRegDetail, name="reg-detail"),
+    path("api/reg_detail/",fetch_reg_detail, name="reg-detail"),
     # path("frontrc/<str:reg_number>/", views.delete_frontrc, name="delete_frontrc"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
