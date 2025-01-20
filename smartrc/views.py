@@ -10,7 +10,7 @@ import os
 from django.http import HttpResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-
+import requests
 class TestView(APIView):
 
     def post(self, request):
@@ -29,12 +29,45 @@ def fetch_reg_detail(request):
         )
     print(reg_number)
     # Simulated API response
-    data_from_api= [{"action":"verify_with_source","completed_at":"2025-01-02T16:48:09+05:30","created_at":"2025-01-02T16:48:07+05:30","group_id":"8e16424a-58fc-4ba4-ab20-5bc8e7c3c41e","request_id":"5c1fd25e-f879-40df-88c8-c419dcc5eeab","result":{"extraction_output":{"noc_valid_upto":None,"seating_capacity":"2","fitness_upto":"2038-08-17","variant":None,"registration_number":"TN22DZ8174","npermit_upto":None,"manufacturer_model":"PULSAR NS 160","standing_capacity":"0","status":"id_found","is_financed":True,"status_message":None,"number_of_cylinder":"1","colour":"PEARL METALLIC WHITE","puc_valid_upto":"2024-08-17","vehicle_class":"2WN","permanent_address":"N NO 11 ESWARAN KOIL STREET, VENGADESHWARA APTS 2ND FLOOR, B BLOCK NO 19 ALANDUR, Chennai-600016","permit_no":"","father_name":"RAMAKRISHNAN A G","status_verfy_date":"2023-12-06","m_y_manufacturing":"2023-07","registration_date":"2023-08-18","gross_vehicle_weight":"303","registered_place":"MEENAMBAKKAM RTO, Tamil Nadu","permit_validity_upto":None,"insurance_policy_no":"MV819871","noc_details":"","npermit_issued_by":None,"sleeper_capacity":"0","current_address":"N NO 11 ESWARAN KOIL STREET, VENGADESHWARA APTS 2ND FLOOR, B BLOCK NO 19 ALANDUR, Chennai-600016","status_verification":"","permit_type":"","noc_status":None,"masked_name":False,"fuel_type":"PETROL","permit_validity_from":None,"owner_name":"HARI BABU A R","puc_number":"Newv4","owner_mobile_no":"","blacklist_status":"","manufacturer":"BAJAJ AUTO LTD","permit_issue_date":None,"engine_number":"JEXCPD91961","chassis_number":"MD2A92DXXPCD14211","mv_tax_upto":"2038-08-17","body_type":"SOLO WITH PILLION","unladden_weight":"153","insurance_name":"IFFCO TOKIO GENERAL INSURANCE CO. LTD.","owner_serial_number":"1","vehicle_category":"2WN","noc_issue_date":None,"npermit_no":"","cubic_capacity":"160.30","norms_type":"BHARAT STAGE VI","state":"Tamil Nadu","insurance_validity":"2028-08-15","financer":"BAJAJ AUTO FINANCE LTD","wheelbase":"1372"}},"status":"completed","task_id":"74f4c926-250c-43ca-9c53-453e87ceacd1","type":"ind_rc_plus"}]
+    # data_from_api= [{"action":"verify_with_source","completed_at":"2025-01-02T16:48:09+05:30","created_at":"2025-01-02T16:48:07+05:30","group_id":"8e16424a-58fc-4ba4-ab20-5bc8e7c3c41e","request_id":"5c1fd25e-f879-40df-88c8-c419dcc5eeab","result":{"extraction_output":{"noc_valid_upto":None,"seating_capacity":"2","fitness_upto":"2038-08-17","variant":None,"registration_number":"TN22DZ8146","npermit_upto":None,"manufacturer_model":"PULSAR NS 160","standing_capacity":"0","status":"id_found","is_financed":True,"status_message":None,"number_of_cylinder":"1","colour":"PEARL METALLIC WHITE","puc_valid_upto":"2024-08-17","vehicle_class":"2WN","permanent_address":"N NO 11 ESWARAN KOIL STREET, VENGADESHWARA APTS 2ND FLOOR, B BLOCK NO 19 ALANDUR, Chennai-600016","permit_no":"","father_name":"RAMAKRISHNAN A G","status_verfy_date":"2023-12-06","m_y_manufacturing":"2023-07","registration_date":"2023-08-18","gross_vehicle_weight":"303","registered_place":"MEENAMBAKKAM RTO, Tamil Nadu","permit_validity_upto":None,"insurance_policy_no":"MV819871","noc_details":"","npermit_issued_by":None,"sleeper_capacity":"0","current_address":"N NO 11 ESWARAN KOIL STREET, VENGADESHWARA APTS 2ND FLOOR, B BLOCK NO 19 ALANDUR, Chennai-600016","status_verification":"","permit_type":"","noc_status":None,"masked_name":False,"fuel_type":"PETROL","permit_validity_from":None,"owner_name":"HARI BABU A R","puc_number":"Newv4","owner_mobile_no":"","blacklist_status":"","manufacturer":"BAJAJ AUTO LTD","permit_issue_date":None,"engine_number":"JEXCPD91961","chassis_number":"MD2A92DXXPCD14211","mv_tax_upto":"2038-08-17","body_type":"SOLO WITH PILLION","unladden_weight":"153","insurance_name":"IFFCO TOKIO GENERAL INSURANCE CO. LTD.","owner_serial_number":"1","vehicle_category":"2WN","noc_issue_date":None,"npermit_no":"","cubic_capacity":"160.30","norms_type":"BHARAT STAGE VI","state":"Tamil Nadu","insurance_validity":"2028-08-15","financer":"BAJAJ AUTO FINANCE LTD","wheelbase":"1372"}},"status":"completed","task_id":"74f4c926-250c-43ca-9c53-453e87ceacd1","type":"ind_rc_plus"}]
 
 
     try:
         # Extract vehicle details from the simulated API response
-        vehicle_detail = data_from_api[0]['result']['extraction_output']
+        balance_entries = Balance.objects.order_by("date")
+
+        if not balance_entries.exists():
+            return Response(
+                {"error": "No balance available."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+        for entry in balance_entries:
+
+            if entry.balance > 0:
+                if entry.balance >= 10:
+                    entry.balance -= 10
+                    entry.save()
+                else:
+                    entry.balance = 0
+                    entry.save()
+        reqIdUrl = "https://vehiclerc.p.rapidapi.com/V3/GetRcdetails"
+
+        payload = { "rcnumber": reg_number }
+        headers = {
+            "x-rapidapi-key": "cc8314f2b9msh0d6c7b3905a0affp121e2fjsn2a8fb7ae28f6",
+            "x-rapidapi-host": "vehiclerc.p.rapidapi.com",
+            "Content-Type": "application/json"
+        }
+
+        reqRes = requests.post(reqIdUrl, json=payload, headers=headers)
+        reqJson = reqRes.json()
+        payload = { "request_id": reqJson['request_id']}
+        rcUrl = "https://vehiclerc.p.rapidapi.com/V3/GetRcResult"
+        rcRes = requests.post(rcUrl, json=payload, headers=headers)
+        rcJson = rcRes.json()
+        vehicle_detail = rcJson[0]['result']['extraction_output']
         return Response(vehicle_detail, status=status.HTTP_200_OK)
     except (IndexError, KeyError) as e:
         return Response(

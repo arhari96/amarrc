@@ -17,5 +17,5 @@ class BalanceListView(generics.ListAPIView):
 
         # Add total balance to the response
         response = {"total_balance": total_balance, "balances": serializer.data}
-
+        print(response)
         return Response(response)
