@@ -314,7 +314,7 @@ class NewRc(models.Model):
             (193, 272), self.unladen, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d.text(
-            (265, 272), self.laden, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (270, 272), self.laden, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d.text(
             (193, 312), self.cubic, fill=(14, 15, 15), font=font, stroke_fill="black"
@@ -351,7 +351,7 @@ class NewRc(models.Model):
             )
         if self.gross_combination:
             d.text(
-                (250, 272),
+                (255, 272),
                 self.gross_combination,
                 fill=(14, 15, 15),
                 font=font,
