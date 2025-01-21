@@ -343,7 +343,7 @@ class NewRc(models.Model):
             )
         if self.sleeper:
             d.text(
-                (325, 272),
+                (345, 232),
                 self.sleeper,
                 fill=(14, 15, 15),
                 font=font,
@@ -351,7 +351,7 @@ class NewRc(models.Model):
             )
         if self.gross_combination:
             d.text(
-                (255, 272),
+                (315, 272),
                 self.gross_combination,
                 fill=(14, 15, 15),
                 font=font,
