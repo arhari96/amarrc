@@ -351,7 +351,7 @@ class NewRc(models.Model):
             )
         if self.gross_combination:
             d.text(
-                (315, 272),
+                (335, 272),
                 self.gross_combination,
                 fill=(14, 15, 15),
                 font=font,
