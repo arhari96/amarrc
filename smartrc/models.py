@@ -100,7 +100,7 @@ class NewRc(models.Model):
 
         draw_text_psd_style(
             d_front,
-            (192, 97),
+            (192, 99),
             self.reg_number,
             font=bold,
             tracking=-0.2,
@@ -109,7 +109,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (192, 148),
+            (192, 150),
             self.chassis_number,
             font=font1,
             tracking=-0.1,
@@ -118,7 +118,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (192, 199),
+            (192, 201),
             self.engine_number,
             font=font1,
             tracking=-0.1,
@@ -127,7 +127,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (192, 252),
+            (192, 254),
             self.name,
             font=font1,
             tracking=-0.1,
@@ -136,7 +136,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (192, 305),
+            (192, 307),
             self.son_of,
             font=font1,
             tracking=-0.1,
@@ -145,7 +145,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (192, 349),
+            (192, 351),
             self.street_name,
             font=font2,
             tracking=-0.1,
@@ -154,7 +154,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (192, 368),
+            (192, 370),
             self.city,
             font=font2,
             tracking=-0.1,
@@ -163,7 +163,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (192, 387),
+            (192, 389),
             self.district,
             font=font2,
             tracking=-0.1,
@@ -173,7 +173,7 @@ class NewRc(models.Model):
         if self.district1:
             draw_text_psd_style(
                 d_front,
-                (192, 406),
+                (192, 408),
                 self.district1,
                 font=font2,
                 tracking=-0.1,
@@ -182,7 +182,7 @@ class NewRc(models.Model):
             )
         draw_text_psd_style(
             d_front,
-            (30, 320.0),
+            (30, 322.0),
             self.fuel,
             font=font2,
             tracking=-0.1,
@@ -191,7 +191,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (30, 368),
+            (30, 370),
             self.emission_norms,
             font=font2,
             tracking=-0.1,
@@ -200,7 +200,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (598.01, 151),
+            (598.01, 153),
             self.serial,
             font=font2,
             tracking=-0.1,
@@ -209,7 +209,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (380.01, 103.1),
+            (380.01, 105.1),
             self.reg_date,
             font=font2,
             tracking=-0.1,
@@ -218,7 +218,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (542.01, 103.1),
+            (542.01, 105.1),
             self.reg_valid,
             font=font2,
             tracking=-0.1,
@@ -252,17 +252,17 @@ class NewRc(models.Model):
         font = ImageFont.truetype(str(font_path), 15)
         d = ImageDraw.Draw(img_back)
         d.text(
-            (36, 96), self.reg_number, fill=(14, 15, 15), font=bold, stroke_fill="black"
+            (36, 98), self.reg_number, fill=(14, 15, 15), font=bold, stroke_fill="black"
         )
         d.text(
-            (36, 274),
+            (36, 276),
             self.month_year_of_Mfg,
             fill=(14, 15, 15),
             font=font,
             stroke_fill="black",
         )
         d.text(
-            (36, 310),
+            (36, 312),
             self.number_cylinder,
             fill=(14, 15, 15),
             font=font,
@@ -270,64 +270,64 @@ class NewRc(models.Model):
         )
         if self.number_of_Axle:
             d.text(
-                (36, 352),
+                (36, 354),
                 self.number_of_Axle,
                 fill=(14, 15, 15),
                 font=font,
                 stroke_fill="black",
             )
         d.text(
-            (288, 37),
+            (288, 39),
             self.vehicle_class,
             fill=(14, 15, 15),
             font=font,
             stroke_fill="black",
         )
         d.text(
-            (193, 83),
+            (193, 85),
             self.maker_name,
             fill=(14, 15, 15),
             font=font,
             stroke_fill="black",
         )
         d.text(
-            (193, 120),
+            (193, 122),
             self.model_name,
             fill=(14, 15, 15),
             font=font,
             stroke_fill="black",
         )
         d.text(
-            (193, 156), self.color, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (193, 158), self.color, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d.text(
-            (193, 195),
+            (193, 197),
             self.body_type,
             fill=(14, 15, 15),
             font=font,
             stroke_fill="black",
         )
         d.text(
-            (193, 232), self.seating, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (193, 234), self.seating, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d.text(
-            (193, 272), self.unladen, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (193, 274), self.unladen, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d.text(
-            (270, 272), self.laden, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (270, 274), self.laden, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d.text(
-            (193, 312), self.cubic, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (193, 314), self.cubic, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d.text(
-            (300, 312),
+            (300, 314),
             self.horse_power,
             fill=(14, 15, 15),
             font=font,
             stroke_fill="black",
         )
         d.text(
-            (458, 312),
+            (458, 314),
             self.wheel_base,
             fill=(14, 15, 15),
             font=font,
@@ -335,7 +335,7 @@ class NewRc(models.Model):
         )
         if self.standing:
             d.text(
-                (300, 232),
+                (300, 234),
                 self.standing,
                 fill=(14, 15, 15),
                 font=font,
@@ -343,7 +343,7 @@ class NewRc(models.Model):
             )
         if self.sleeper:
             d.text(
-                (345, 232),
+                (345, 234),
                 self.sleeper,
                 fill=(14, 15, 15),
                 font=font,
@@ -351,7 +351,7 @@ class NewRc(models.Model):
             )
         if self.gross_combination:
             d.text(
-                (335, 272),
+                (335, 274),
                 self.gross_combination,
                 fill=(14, 15, 15),
                 font=font,
@@ -359,7 +359,7 @@ class NewRc(models.Model):
             )
         if self.rto_name:
             d.text(
-                (468, 393),
+                (468, 395),
                 self.rto_name,
                 fill=(14, 15, 15),
                 font=font,
@@ -368,7 +368,7 @@ class NewRc(models.Model):
         if self.financer:
             textwrapped = textwrap.wrap(self.financer, width=20)
             d.text(
-                (193, 350),
+                (193, 352),
                 "\n".join(textwrapped),
                 fill=(14, 15, 15),
                 font=font,
