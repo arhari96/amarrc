@@ -52,19 +52,19 @@ def fetch_reg_detail(request):
                 else:
                     entry.balance = 0
                     entry.save()
-        reqIdUrl = "https://vehicle-information-verification-rto-india.p.rapidapi.com/rc-full"
+        reqIdUrl = "https://rto-vehicle-details.p.rapidapi.com/api3"
 
-        payload = { "id_number": reg_number }
+        payload = { "vehicle_number": reg_number }
         headers = {
-            "x-rapidapi-key": "cc8314f2b9msh0d6c7b3905a0affp121e2fjsn2a8fb7ae28f6",
-	"x-rapidapi-host": "vehicle-information-verification-rto-india.p.rapidapi.com",
-	"Content-Type": "application/json"
-        }
+    'x-rapidapi-key': "cc8314f2b9msh0d6c7b3905a0affp121e2fjsn2a8fb7ae28f6",
+    'x-rapidapi-host': "rto-vehicle-details.p.rapidapi.com",
+    'Content-Type': "application/json"
+}
 
         reqRes = requests.post(reqIdUrl, json=payload, headers=headers)
        
         rcJson = reqRes.json()
-        vehicle_detail = rcJson['data']
+        vehicle_detail = rcJson
         return Response(vehicle_detail, status=status.HTTP_200_OK)
     except (IndexError, KeyError) as e:
         return Response(
