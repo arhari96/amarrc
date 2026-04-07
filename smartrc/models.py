@@ -24,7 +24,7 @@ class NewRc(models.Model):
     district1 = models.CharField(max_length=50, null=True, blank=True)
     reg_date = models.CharField(max_length=50)
     reg_valid = models.CharField(max_length=50)
-    fuel = models.CharField(max_length=6)
+    fuel = models.CharField(max_length=12)
     serial = models.CharField(max_length=2)
     emission_norms = models.CharField(max_length=20)
     issue_date = models.CharField(max_length=20)
@@ -229,7 +229,11 @@ class NewRc(models.Model):
         angle = 90
         im = Image.new("RGBA", (100, 60), (255, 255, 255, 0))
         draw = ImageDraw.Draw(im)
-        draw.text((0, 0), self.issue_date, fill=(14, 15, 15), font=font1, size=14)
+        bold_font_path = Path(settings.FONTS_ROOT) / "SourceSans3-Semibold.ttf"
+        regular_font_path = Path(settings.FONTS_ROOT) / "Arial.ttf"
+        # Create a larger bold font for issue_date to compensate for rotation
+        issue_date_font = ImageFont.truetype(str(regular_font_path), size=18)
+        draw.text((0, 0), self.issue_date, fill=(14, 15, 15), font=issue_date_font, stroke_width=0.5)
         rot = im.rotate(angle, expand=1)
         img_front.paste(rot, (648, 95), rot)
 
@@ -434,19 +438,19 @@ class OldRc(models.Model):
     fuel = models.CharField(max_length=12, null=True, blank=True)
     serial = models.CharField(max_length=2)
     owner_type = models.CharField(max_length=12)
-    month_year = models.CharField(max_length=20)
+    month_year_of_Mfg = models.CharField(max_length=20)
     type = models.CharField(max_length=200)
-    wheelbase = models.CharField(max_length=20)
+    wheel_base = models.CharField(max_length=20)
     cubic = models.CharField(max_length=20)
-    cylinder = models.CharField(max_length=20)
+    number_cylinder = models.CharField(max_length=20)
     ledan_unledan = models.CharField(max_length=50)
-    maker = models.CharField(max_length=50)
-    model = models.CharField(max_length=50)
+    maker_name = models.CharField(max_length=50)
+    model_name = models.CharField(max_length=50)
     color = models.CharField(max_length=50)
     body_type = models.CharField(max_length=50)
     seating = models.CharField(max_length=6)
-    rto = models.CharField(max_length=50, blank=True, null=True)
-    finance = models.CharField(max_length=50, blank=True, null=True)
+    rto_name = models.CharField(max_length=50, blank=True, null=True)
+    financer = models.CharField(max_length=50, blank=True, null=True)
     tax_valid = models.CharField(
         max_length=50, default="LIFE TIME", null=True, blank=True
     )
@@ -623,19 +627,19 @@ class OldRc(models.Model):
         )
         d_back.text(
             (40, 134),
-            self.month_year,
+            self.month_year_of_Mfg,
             fill=(14, 15, 15),
             font=font,
             stroke_fill="black",
         )
         d_back.text(
-            (40, 174), self.wheelbase, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (40, 174), self.wheel_base, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d_back.text(
             (40, 213), self.cubic, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d_back.text(
-            (40, 253), self.cylinder, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (40, 253), self.number_cylinder, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d_back.text(
             (40, 315),
@@ -645,10 +649,10 @@ class OldRc(models.Model):
             stroke_fill="black",
         )
         d_back.text(
-            (196, 93), self.maker, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (196, 93), self.maker_name, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d_back.text(
-            (196, 134), self.model, fill=(14, 15, 15), font=font, stroke_fill="black"
+            (196, 134), self.model_name, fill=(14, 15, 15), font=font, stroke_fill="black"
         )
         d_back.text(
             (196, 174), self.color, fill=(14, 15, 15), font=font, stroke_fill="black"
@@ -670,12 +674,12 @@ class OldRc(models.Model):
             font=font,
             stroke_fill="black",
         )
-        if self.rto:
+        if self.rto_name:
             d_back.text(
-                (445, 399), self.rto, fill=(14, 15, 15), font=font, stroke_fill="black"
+                (445, 399), self.rto_name, fill=(14, 15, 15), font=font, stroke_fill="black"
             )
-        if self.finance:
-            textwrapped = textwrap.wrap(self.finance, width=20)
+        if self.financer:
+            textwrapped = textwrap.wrap(self.financer, width=20)
             d_back.text(
                 (455, 259),
                 "\n".join(textwrapped),
@@ -705,3 +709,12 @@ class OldRc(models.Model):
 
     def __str__(self):
         return f"{self.name} {self.reg_number}"
+
+
+class Rc(models.Model):
+    reg_number= models.CharField(max_length=10, primary_key=True)
+    data = models.JSONField()
+
+    now = models.DateField(auto_now_add=True, auto_created=True)
+    def __str__(self):
+        return f"{self.reg_number}"

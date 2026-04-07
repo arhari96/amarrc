@@ -1,21 +1,9 @@
-from rest_framework import generics
-from .models import Balance
-from .serializers import BalanceSerializer
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .services import build_billing_summary
 
 
-class BalanceListView(generics.ListAPIView):
-    queryset = Balance.objects.all().order_by("-date")
-    serializer_class = BalanceSerializer
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-
-        # Calculate the total balance
-        total_balance = sum([balance.balance for balance in queryset])
-
-        # Add total balance to the response
-        response = {"total_balance": total_balance, "balances": serializer.data}
-        print(response)
-        return Response(response)
+class BalanceListView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response(build_billing_summary())

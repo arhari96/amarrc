@@ -22,10 +22,13 @@ from django.conf.urls.static import static
 from smartrc.views import (
     TestView,
     NewRcCreateView,
+    RCDetailCreateView,
+    RCDetailView,
     OldRcCreateView,
     search_rc,
     delete_rc,
-    fetch_reg_detail
+    fetch_reg_detail,
+    save_rc_details,
 )
 from balance.views import BalanceListView
 from django.urls import path, re_path
@@ -42,12 +45,14 @@ urlpatterns = [
     path("flutter_web_app/<path:resource>", flutter_redirect),
     re_path(r"^$", lambda r: flutter_redirect(r, "index.html")),
     path("admin/", admin.site.urls),
-    path("api/new_create_rc/", NewRcCreateView.as_view(), name="newrc-create"),
+    path("api/new_create_rc/", RCDetailCreateView.as_view(), name="newrc-create"),
     path("api/old_create_rc/", OldRcCreateView.as_view(), name="oldrc-create"),
+    path("api/rc/<str:rc_type>/<str:reg_number>/", RCDetailView.as_view(), name="rc-detail"),
     path("api/search_rc/", search_rc, name="search_rc"),
     path("api/delete_rc/", delete_rc, name="delete-rc"),
     path("api/balance_list/", BalanceListView.as_view(), name="balance-list"),
     path("api/reg_detail/",fetch_reg_detail, name="reg-detail"),
+    path("api/save_rc_details/", save_rc_details, name="save-rc-details"),
     # path("frontrc/<str:reg_number>/", views.delete_frontrc, name="delete_frontrc"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
