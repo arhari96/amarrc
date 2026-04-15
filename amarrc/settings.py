@@ -46,7 +46,13 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8080',  # for localhost (Developlemt)
     'http://192.168.0.50:8080',  # for network (Development)
 ]
-
+MAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.appglow.in'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'noreply@appglow.in'
+EMAIL_HOST_PASSWORD = 'HariBabu@1996'
+DEFAULT_FROM_EMAIL = 'noreply@appglow.in'
 # Application definition
 
 INSTALLED_APPS = [
@@ -61,6 +67,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "smartrc",
     "balance",
+    'host',
 ]
 
 MIDDLEWARE = [

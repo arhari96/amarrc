@@ -31,7 +31,7 @@ from smartrc.views import (
     save_rc_details,
 )
 from balance.views import BalanceListView
-from django.urls import path, re_path
+from django.urls import path, re_path,include
 from django.views.static import serve
 
 
@@ -53,6 +53,7 @@ urlpatterns = [
     path("api/balance_list/", BalanceListView.as_view(), name="balance-list"),
     path("api/reg_detail/",fetch_reg_detail, name="reg-detail"),
     path("api/save_rc_details/", save_rc_details, name="save-rc-details"),
+      path("api/host/", include("host.urls")),
     # path("frontrc/<str:reg_number>/", views.delete_frontrc, name="delete_frontrc"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
