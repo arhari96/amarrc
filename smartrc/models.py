@@ -370,7 +370,7 @@ class NewRc(models.Model):
                 stroke_fill="black",
             )
         if self.financer:
-            textwrapped = textwrap.wrap(self.financer, width=20)
+            textwrapped = textwrap.wrap(self.financer, width=70)
             d.text(
                 (193, 352),
                 "\n".join(textwrapped),
@@ -679,7 +679,7 @@ class OldRc(models.Model):
                 (445, 399), self.rto_name, fill=(14, 15, 15), font=font, stroke_fill="black"
             )
         if self.financer:
-            textwrapped = textwrap.wrap(self.financer, width=20)
+            textwrapped = textwrap.wrap(self.financer, width=70)
             d_back.text(
                 (455, 259),
                 "\n".join(textwrapped),
