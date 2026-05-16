@@ -11,6 +11,25 @@ import qrcode
 import textwrap
 
 
+def font_path(*filenames):
+    search_roots = [
+        Path(settings.FONTS_ROOT),
+        Path(settings.BASE_DIR) / "arial",
+    ]
+    for filename in filenames:
+        for root in search_roots:
+            candidate = root / filename
+            if candidate.exists():
+                return candidate
+    return search_roots[0] / filenames[0]
+
+
+RC_FRONT_BOLD_FONT = ("ARIALBD.TTF", "Arial-BoldMT.ttf")
+RC_FRONT_REGULAR_FONT = ("ARIAL.TTF", "Arial.ttf")
+RC_BACK_BOLD_FONT = "SourceSans3-Semibold.ttf"
+RC_BACK_REGULAR_FONT = "SourceSans3-Regular.ttf"
+
+
 class NewRc(models.Model):
     # Front fields
     reg_number = models.CharField(max_length=10, primary_key=True)
@@ -91,10 +110,11 @@ class NewRc(models.Model):
         d_front = ImageDraw.Draw(img_front)
 
         # Construct font paths
-        bold_font_path = Path(settings.FONTS_ROOT) / "SourceSans3-Semibold.ttf"
-        regular_font_path = Path(settings.FONTS_ROOT) / "Arial.ttf"
+        bold_font_path = font_path(*RC_FRONT_BOLD_FONT)
+        regular_font_path = font_path(*RC_FRONT_REGULAR_FONT)
 
-        bold = ImageFont.truetype(str(bold_font_path), size=22)
+        bold = ImageFont.truetype(str(bold_font_path), size=21)
+        date_font = ImageFont.truetype(str(bold_font_path), size=19)
         font1 = ImageFont.truetype(str(regular_font_path), size=18)
         font2 = ImageFont.truetype(str(regular_font_path), size=18)
 
@@ -211,7 +231,7 @@ class NewRc(models.Model):
             d_front,
             (380.01, 105.1),
             self.reg_date,
-            font=font2,
+            font=date_font,
             tracking=-0.1,
             leading=8,
             fill=(14, 15, 15),
@@ -220,7 +240,7 @@ class NewRc(models.Model):
             d_front,
             (542.01, 105.1),
             self.reg_valid,
-            font=font2,
+            font=date_font,
             tracking=-0.1,
             leading=8,
             fill=(14, 15, 15),
@@ -229,9 +249,8 @@ class NewRc(models.Model):
         angle = 90
         im = Image.new("RGBA", (100, 60), (255, 255, 255, 0))
         draw = ImageDraw.Draw(im)
-        bold_font_path = Path(settings.FONTS_ROOT) / "SourceSans3-Semibold.ttf"
-        regular_font_path = Path(settings.FONTS_ROOT) / "Arial.ttf"
-        # Create a larger bold font for issue_date to compensate for rotation
+        regular_font_path = font_path(*RC_FRONT_REGULAR_FONT)
+        # Use regular text for issue_date; rotation makes it appear heavier.
         issue_date_font = ImageFont.truetype(str(regular_font_path), size=18)
         draw.text((0, 0), self.issue_date, fill=(14, 15, 15), font=issue_date_font, stroke_width=0.5)
         rot = im.rotate(angle, expand=1)
@@ -249,11 +268,11 @@ class NewRc(models.Model):
         media_path_back = Path(settings.MEDIA_ROOT) / "back.png"
         img_back = Image.open(media_path_back, mode="r")
 
-        bold_font_path = Path(settings.FONTS_ROOT) / "SourceSans3-Semibold.ttf"
-        font_path = Path(settings.FONTS_ROOT) / "SourceSans3-Regular.ttf"
+        bold_font_path = font_path(RC_BACK_BOLD_FONT)
+        back_font_path = font_path(RC_BACK_REGULAR_FONT)
 
         bold = ImageFont.truetype(str(bold_font_path), 15)
-        font = ImageFont.truetype(str(font_path), 15)
+        font = ImageFont.truetype(str(back_font_path), 15)
         d = ImageDraw.Draw(img_back)
         d.text(
             (36, 98), self.reg_number, fill=(14, 15, 15), font=bold, stroke_fill="black"
@@ -475,7 +494,7 @@ class OldRc(models.Model):
         img_front = Image.open(media_path_front, mode="r")
         d_front = ImageDraw.Draw(img_front)
 
-        bold_font_front = Path(settings.FONTS_ROOT) / "SourceSans3-Semibold.ttf"
+        bold_font_front = font_path(*RC_FRONT_BOLD_FONT)
         bold = ImageFont.truetype(
             str(bold_font_front),
             size=26,
@@ -615,8 +634,8 @@ class OldRc(models.Model):
         media_path_back = Path(settings.MEDIA_ROOT) / "back.png"
         img_back = Image.open(media_path_back, mode="r")
         d_back = ImageDraw.Draw(img_back)
-        bold_font_path = Path(settings.FONTS_ROOT) / "SourceSans3-Semibold.ttf"
-        regular_font_path = Path(settings.FONTS_ROOT) / "SourceSans3-Regular.ttf"
+        bold_font_path = font_path(RC_BACK_BOLD_FONT)
+        regular_font_path = font_path(RC_BACK_REGULAR_FONT)
         bold = ImageFont.truetype(str(bold_font_path), size=17)
         font = ImageFont.truetype(str(regular_font_path), size=18)
         d_back.text(
