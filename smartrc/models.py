@@ -26,6 +26,7 @@ def font_path(*filenames):
 
 RC_FRONT_BOLD_FONT = ("ARIALBD.TTF", "Arial-BoldMT.ttf")
 RC_FRONT_REGULAR_FONT = ("ARIAL.TTF", "Arial.ttf")
+RC_FRONT_NARROW_FONT = ("ARIALN.TTF", "Arial.ttf")
 RC_BACK_BOLD_FONT = "SourceSans3-Semibold.ttf"
 RC_BACK_REGULAR_FONT = "SourceSans3-Regular.ttf"
 
@@ -112,11 +113,13 @@ class NewRc(models.Model):
         # Construct font paths
         bold_font_path = font_path(*RC_FRONT_BOLD_FONT)
         regular_font_path = font_path(*RC_FRONT_REGULAR_FONT)
+        narrow_font_path = font_path(*RC_FRONT_NARROW_FONT)
 
         bold = ImageFont.truetype(str(bold_font_path), size=21)
         date_font = ImageFont.truetype(str(bold_font_path), size=19)
         font1 = ImageFont.truetype(str(regular_font_path), size=18)
         font2 = ImageFont.truetype(str(regular_font_path), size=18)
+        address_font = ImageFont.truetype(str(narrow_font_path), size=18)
 
         draw_text_psd_style(
             d_front,
@@ -167,7 +170,7 @@ class NewRc(models.Model):
             d_front,
             (192, 351),
             self.street_name,
-            font=font2,
+            font=address_font,
             tracking=-0.1,
             leading=8,
             fill=(14, 15, 15),
@@ -176,7 +179,7 @@ class NewRc(models.Model):
             d_front,
             (192, 370),
             self.city,
-            font=font2,
+            font=address_font,
             tracking=-0.1,
             leading=8,
             fill=(14, 15, 15),
@@ -185,7 +188,7 @@ class NewRc(models.Model):
             d_front,
             (192, 389),
             self.district,
-            font=font2,
+            font=address_font,
             tracking=-0.1,
             leading=8,
             fill=(14, 15, 15),
@@ -195,7 +198,7 @@ class NewRc(models.Model):
                 d_front,
                 (192, 408),
                 self.district1,
-                font=font2,
+                font=address_font,
                 tracking=-0.1,
                 leading=8,
                 fill=(14, 15, 15),
@@ -238,7 +241,7 @@ class NewRc(models.Model):
         )
         draw_text_psd_style(
             d_front,
-            (542.01, 105.1),
+            (535.01, 105.1),
             self.reg_valid,
             font=date_font,
             tracking=-0.1,
@@ -254,7 +257,7 @@ class NewRc(models.Model):
         issue_date_font = ImageFont.truetype(str(regular_font_path), size=18)
         draw.text((0, 0), self.issue_date, fill=(14, 15, 15), font=issue_date_font, stroke_width=0.5)
         rot = im.rotate(angle, expand=1)
-        img_front.paste(rot, (648, 95), rot)
+        img_front.paste(rot, (654, 95), rot)
 
         img_io_front = BytesIO()
         img_front.save(img_io_front, format="PNG")
