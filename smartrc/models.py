@@ -257,7 +257,7 @@ class NewRc(models.Model):
         issue_date_font = ImageFont.truetype(str(regular_font_path), size=18)
         draw.text((0, 0), self.issue_date, fill=(14, 15, 15), font=issue_date_font, stroke_width=0.5)
         rot = im.rotate(angle, expand=1)
-        img_front.paste(rot, (654, 95), rot)
+        img_front.paste(rot, (644, 95), rot)
 
         img_io_front = BytesIO()
         img_front.save(img_io_front, format="PNG")
