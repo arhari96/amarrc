@@ -115,7 +115,7 @@ class NewRc(models.Model):
         regular_font_path = font_path(*RC_FRONT_REGULAR_FONT)
         narrow_font_path = font_path(*RC_FRONT_NARROW_FONT)
 
-        bold = ImageFont.truetype(str(bold_font_path), size=21)
+        bold = ImageFont.truetype(str(bold_font_path), size=19)
         date_font = ImageFont.truetype(str(bold_font_path), size=19)
         font1 = ImageFont.truetype(str(regular_font_path), size=18)
         font2 = ImageFont.truetype(str(regular_font_path), size=18)
@@ -123,7 +123,7 @@ class NewRc(models.Model):
 
         draw_text_psd_style(
             d_front,
-            (192, 99),
+            (192, 105.1),
             self.reg_number,
             font=bold,
             tracking=-0.2,
@@ -496,9 +496,12 @@ class OldRc(models.Model):
         media_path_front = Path(settings.MEDIA_ROOT) / "front.png"
         img_front = Image.open(media_path_front, mode="r")
         d_front = ImageDraw.Draw(img_front)
+        front_text_fill = (8, 9, 9)
+        front_y_offset = 5
 
         def draw_short_text(draw, xy, text, font, x_scale=0.94, **kwargs):
-            bbox = draw.textbbox((0, 0), text, font=font)
+            stroke_width = kwargs.get("stroke_width", 0)
+            bbox = draw.textbbox((0, 0), text, font=font, stroke_width=stroke_width)
             width = max(1, bbox[2] - bbox[0])
             height = max(1, bbox[3] - bbox[1])
             text_img = Image.new("RGBA", (width + 4, height + 4), (255, 255, 255, 0))
@@ -506,7 +509,7 @@ class OldRc(models.Model):
             text_draw.text((2 - bbox[0], 2 - bbox[1]), text, font=font, **kwargs)
             resized_width = max(1, int(text_img.width * x_scale))
             text_img = text_img.resize((resized_width, text_img.height), Image.LANCZOS)
-            img_front.paste(text_img, (int(xy[0]), int(xy[1])), text_img)
+            img_front.paste(text_img, (int(xy[0]), int(xy[1] + front_y_offset)), text_img)
 
         bold_font_front = font_path(*RC_FRONT_BOLD_FONT)
         bold = ImageFont.truetype(
@@ -532,43 +535,43 @@ class OldRc(models.Model):
             d_front,
             (208, 150),
             self.chassis_number,
-            fill=(14, 15, 15),
+            fill=front_text_fill,
             font=font1,
         )
         draw_short_text(
             d_front,
             (208.09, 196.1),
             self.engine_number,
-            fill=(14, 15, 15),
+            fill=front_text_fill,
             font=font1,
         )
         draw_short_text(
             d_front,
-            (207.01, 237), self.name, fill=(14, 15, 15), font=font1, stroke_fill="black"
+            (207.01, 237), self.name, fill=front_text_fill, font=font1
         )
         draw_short_text(
             d_front,
             (207.01, 282),
             self.son_of,
-            fill=(14, 15, 15),
+            fill=front_text_fill,
             font=font1,
         )
         draw_short_text(
             d_front,
             (200.01, 341),
             self.street_name,
-            fill=(14, 15, 15),
+            fill=front_text_fill,
             font=font2,
         )
         draw_short_text(
             d_front,
-            (200.01, 361), self.city, fill=(14, 15, 15), font=font2, stroke_fill="black"
+            (200.01, 361), self.city, fill=front_text_fill, font=font2
         )
         draw_short_text(
             d_front,
             (200.01, 380),
             self.district,
-            fill=(14, 15, 15),
+            fill=front_text_fill,
             font=font2,
         )
 
@@ -577,7 +580,7 @@ class OldRc(models.Model):
                 d_front,
                 (200.01, 395),
                 self.district1,
-                fill=(14, 15, 15),
+                fill=front_text_fill,
                 font=font2,
             )
 
@@ -586,7 +589,7 @@ class OldRc(models.Model):
                 d_front,
                 (43.01, 274.1),
                 self.fuel,
-                fill=(14, 15, 15),
+                fill=front_text_fill,
                 font=font1,
             )
 
@@ -594,21 +597,21 @@ class OldRc(models.Model):
             d_front,
             (467.01, 103.1),
             self.reg_date,
-            fill=(14, 15, 15),
+            fill=front_text_fill,
             font=font1,
         )
         draw_short_text(
             d_front,
             (516.01, 151.1),
             self.reg_valid,
-            fill=(14, 15, 15),
+            fill=front_text_fill,
             font=font1,
         )
         draw_short_text(
             d_front,
             (598.01, 193.1),
             self.serial,
-            fill=(14, 15, 15),
+            fill=front_text_fill,
             font=font1,
         )
 
