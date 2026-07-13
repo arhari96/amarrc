@@ -19,6 +19,7 @@ class BillingConfig(models.Model):
     usage = models.IntegerField(default=0)
     limit = models.IntegerField(default=0)
     debit_amount = models.IntegerField(default=0)
+    debit_amount_old = models.IntegerField(default=0)
     fetch_amount = models.IntegerField(default=0)
     edit_amount = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -65,6 +66,11 @@ class UsageTransaction(models.Model):
         (MANUAL_SETTLEMENT, "Manual Settlement"),
     ]
 
+    app = models.CharField(
+        max_length=10,
+        default="new",
+        choices=[("new", "New App"), ("old", "Old App")],
+    )
     transaction_type = models.CharField(max_length=32, choices=TRANSACTION_TYPES)
     amount = models.PositiveIntegerField()
     usage_before = models.IntegerField(default=0)

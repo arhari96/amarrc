@@ -54,7 +54,7 @@ def get_rc_components(rc_type):
 
 
 def split_legacy_address(payload):
-    address = payload.get("address", "")
+    address = payload.get("address") or payload.get("address_text") or ""
     if not address:
         return
 
@@ -64,6 +64,7 @@ def split_legacy_address(payload):
     payload["district"] = address_lines[2] if len(address_lines) > 2 else ""
     payload["district1"] = address_lines[3] if len(address_lines) > 3 else ""
     payload.pop("address", None)
+    payload.pop("address_text", None)
 
 
 def prepare_old_rc_fields(payload):
@@ -137,6 +138,10 @@ def prepare_rc_payload(raw_data, rc_type):
 
     split_legacy_address(payload)
 
+    if normalized_type == "New":
+        if not payload.get("horse_power"):
+            payload["horse_power"] = "0"
+
     if normalized_type == "Old":
         prepare_old_rc_fields(payload)
 
@@ -167,6 +172,7 @@ def handle_rc_create(raw_data, explicit_rc_type=None):
 
     serializer = serializer_class(data=payload)
     if not serializer.is_valid():
+        print("SMART SERIALIZER ERRORS:", serializer.errors, flush=True)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     reg_number = serializer.validated_data.get("reg_number")
@@ -181,6 +187,14 @@ def handle_rc_create(raw_data, explicit_rc_type=None):
             )
 
         rc_instance = serializer.save()
+
+        # Central cache: save to Rc JSON model
+        prefill_data = build_prefill_from_saved_rc(rc_instance, normalized_type)
+        Rc.objects.update_or_create(
+            reg_number=reg_number,
+            defaults={"data": prefill_data},
+        )
+
         apply_usage_charge(
             config,
             amount,
@@ -242,6 +256,7 @@ def build_prefill_from_saved_rc(instance, rc_type):
             "cubic_capacity": instance.cubic,
             "is_financed": "1" if instance.financer else "0",
             "financer": instance.financer or "",
+            "template": getattr(instance, "template", "NT_TN"),
         }
 
     seating_capacity = str(instance.seating or "").split("/")[0]
@@ -271,6 +286,7 @@ def build_prefill_from_saved_rc(instance, rc_type):
         "body_type": instance.body_type,
         "unladden_weight": laden_unladen[1] if len(laden_unladen) > 1 else "",
         "gross_vehicle_weight": laden_unladen[0] if laden_unladen else "",
+        "template": getattr(instance, "template", "NT_TN"),
     }
 
 
@@ -402,6 +418,14 @@ class RCDetailView(APIView):
                 )
 
             rc_instance = serializer.save()
+
+            # Central cache: save to Rc JSON model
+            prefill_data = build_prefill_from_saved_rc(rc_instance, normalized_type)
+            Rc.objects.update_or_create(
+                reg_number=reg_number,
+                defaults={"data": prefill_data},
+            )
+
             apply_usage_charge(
                 config,
                 amount,

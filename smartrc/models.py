@@ -30,10 +30,22 @@ RC_FRONT_NARROW_FONT = ("ARIALN.TTF", "Arial.ttf")
 RC_BACK_BOLD_FONT = "SourceSans3-Semibold.ttf"
 RC_BACK_REGULAR_FONT = "SourceSans3-Regular.ttf"
 
+TEMPLATE_REGISTRY = {
+    "NT_TN": {
+        "front": "nt_tn_front_empty.png",
+        "back":  "nt_tn_back_empty.png",
+    },
+    "RC_WHITE": {
+        "front": "rc_white_front_empty.png",
+        "back":  "rc_white_back_empty.png",
+    },
+}
+
 
 class NewRc(models.Model):
     # Front fields
     reg_number = models.CharField(max_length=10, primary_key=True)
+    template = models.CharField(max_length=50, default="NT_TN", blank=True)
     chassis_number = models.CharField(max_length=27)
     engine_number = models.CharField(max_length=20)
     name = models.CharField(max_length=40)
@@ -105,159 +117,55 @@ class NewRc(models.Model):
                 y += leading
                 x = xy[0]
 
-        # Create front image
-        media_path_front = Path(settings.MEDIA_ROOT) / "front.png"
-        img_front = Image.open(media_path_front, mode="r")
+        # Create front image — use self.template (user-selected for New RC)
+        template_name = self.template if self.template in TEMPLATE_REGISTRY else "NT_TN"
+        template_entry = TEMPLATE_REGISTRY[template_name]
+        front_path = Path(settings.MEDIA_ROOT) / "templates" / template_entry["front"]
+        if not front_path.exists():
+            front_path = Path(settings.MEDIA_ROOT) / "front.png"
+
+        img_front = Image.open(front_path).convert("RGBA").copy()
+        if img_front.size != (677, 428):
+            img_front = img_front.resize((677, 428), Image.LANCZOS)
         d_front = ImageDraw.Draw(img_front)
 
         # Construct font paths
         bold_font_path = font_path(*RC_FRONT_BOLD_FONT)
         regular_font_path = font_path(*RC_FRONT_REGULAR_FONT)
         narrow_font_path = font_path(*RC_FRONT_NARROW_FONT)
+        black_font_path = font_path("ArialBlack.ttf", "ARIBLK.TTF", *RC_FRONT_BOLD_FONT)
 
+        black_font = ImageFont.truetype(str(black_font_path), size=19)
         bold = ImageFont.truetype(str(bold_font_path), size=19)
         date_font = ImageFont.truetype(str(bold_font_path), size=19)
         font1 = ImageFont.truetype(str(regular_font_path), size=18)
         font2 = ImageFont.truetype(str(regular_font_path), size=18)
         address_font = ImageFont.truetype(str(narrow_font_path), size=18)
 
-        draw_text_psd_style(
-            d_front,
-            (192, 105.1),
-            self.reg_number,
-            font=bold,
-            tracking=-0.2,
-            leading=6,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (192, 150),
-            self.chassis_number,
-            font=font1,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (192, 201),
-            self.engine_number,
-            font=font1,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (192, 254),
-            self.name,
-            font=font1,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (192, 307),
-            self.son_of,
-            font=font1,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (192, 351),
-            self.street_name,
-            font=address_font,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (192, 370),
-            self.city,
-            font=address_font,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (192, 389),
-            self.district,
-            font=address_font,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
+        d_front.text((190, 108), self.reg_number, fill=(14, 15, 15), font=bold)
+        d_front.text((374, 112), self.reg_date, fill=(14, 15, 15), font=date_font)
+        d_front.text((541, 110), self.reg_valid, fill=(14, 15, 15), font=date_font)
+        d_front.text((191, 157), self.chassis_number, fill=(14, 15, 15), font=font1)
+        d_front.text((190, 208), self.engine_number, fill=(14, 15, 15), font=font1)
+        d_front.text((191, 260), self.name, fill=(14, 15, 15), font=font1)
+        d_front.text((192, 312), self.son_of, fill=(14, 15, 15), font=font1)
+        d_front.text((193, 361), self.street_name, fill=(14, 15, 15), font=address_font)
+        d_front.text((194, 380), self.city, fill=(14, 15, 15), font=address_font)
+        d_front.text((193, 396), self.district, fill=(14, 15, 15), font=address_font)
         if self.district1:
-            draw_text_psd_style(
-                d_front,
-                (192, 408),
-                self.district1,
-                font=address_font,
-                tracking=-0.1,
-                leading=8,
-                fill=(14, 15, 15),
-            )
-        draw_text_psd_style(
-            d_front,
-            (30, 322.0),
-            self.fuel,
-            font=font2,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (30, 370),
-            self.emission_norms,
-            font=font2,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (598.01, 153),
-            self.serial,
-            font=font2,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (380.01, 105.1),
-            self.reg_date,
-            font=date_font,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
-        draw_text_psd_style(
-            d_front,
-            (535.01, 105.1),
-            self.reg_valid,
-            font=date_font,
-            tracking=-0.1,
-            leading=8,
-            fill=(14, 15, 15),
-        )
+            d_front.text((193, 412), self.district1, fill=(14, 15, 15), font=address_font)
+        d_front.text((14, 323), self.fuel, fill=(14, 15, 15), font=font2)
+        d_front.text((15, 369), self.emission_norms, fill=(14, 15, 15), font=font2)
+        d_front.text((587, 147), self.serial, fill=(14, 15, 15), font=font2)
 
         angle = 90
         im = Image.new("RGBA", (100, 60), (255, 255, 255, 0))
         draw = ImageDraw.Draw(im)
         regular_font_path = font_path(*RC_FRONT_REGULAR_FONT)
-        # Use regular text for issue_date; rotation makes it appear heavier.
         issue_date_font = ImageFont.truetype(str(regular_font_path), size=18)
-        draw.text((0, 0), self.issue_date, fill=(14, 15, 15), font=issue_date_font, stroke_width=0.5)
+        draw.text((0, 0), self.issue_date, fill=(14, 15, 15), font=issue_date_font)
         rot = im.rotate(angle, expand=1)
-        img_front.paste(rot, (644, 95), rot)
+        img_front.paste(rot, (637, 95), rot)
 
         img_io_front = BytesIO()
         img_front.save(img_io_front, format="PNG")
@@ -268,8 +176,13 @@ class NewRc(models.Model):
             f"{self.reg_number}_front.png", ContentFile(img_io_front.read()), save=False
         )
 
-        media_path_back = Path(settings.MEDIA_ROOT) / "back.png"
-        img_back = Image.open(media_path_back, mode="r")
+        # Back image — use same template key as front
+        back_path = Path(settings.MEDIA_ROOT) / "templates" / template_entry["back"]
+        if not back_path.exists():
+            back_path = Path(settings.MEDIA_ROOT) / "back.png"
+        img_back = Image.open(back_path).convert("RGB").copy()
+        if img_back.size != (677, 428):
+            img_back = img_back.resize((677, 428), Image.LANCZOS)
 
         bold_font_path = font_path(RC_BACK_BOLD_FONT)
         back_font_path = font_path(RC_BACK_REGULAR_FONT)
@@ -277,129 +190,39 @@ class NewRc(models.Model):
         bold = ImageFont.truetype(str(bold_font_path), 15)
         font = ImageFont.truetype(str(back_font_path), 15)
         d = ImageDraw.Draw(img_back)
-        d.text(
-            (36, 98), self.reg_number, fill=(14, 15, 15), font=bold, stroke_fill="black"
-        )
-        d.text(
-            (36, 276),
-            self.month_year_of_Mfg,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        d.text(
-            (36, 312),
-            self.number_cylinder,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
+        d.text((34, 98), self.reg_number, fill=(14, 15, 15), font=bold)
+        # NT_TN back: left column
+        d.text((34, 279), self.month_year_of_Mfg, fill=(14, 15, 15), font=font)
+        d.text((35, 319), self.number_cylinder,    fill=(14, 15, 15), font=font)
         if self.number_of_Axle:
-            d.text(
-                (36, 354),
-                self.number_of_Axle,
-                fill=(14, 15, 15),
-                font=font,
-                stroke_fill="black",
-            )
-        d.text(
-            (288, 39),
-            self.vehicle_class,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        d.text(
-            (193, 85),
-            self.maker_name,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        d.text(
-            (193, 122),
-            self.model_name,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        d.text(
-            (193, 158), self.color, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d.text(
-            (193, 197),
-            self.body_type,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        d.text(
-            (193, 234), self.seating, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d.text(
-            (193, 274), self.unladen, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d.text(
-            (270, 274), self.laden, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d.text(
-            (193, 314), self.cubic, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d.text(
-            (300, 314),
-            self.horse_power,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        d.text(
-            (458, 314),
-            self.wheel_base,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
+            d.text((34, 362), self.number_of_Axle, fill=(14, 15, 15), font=font)
+        # NT_TN back: top band vehicle class
+        d.text((288, 41), self.vehicle_class, fill=(14, 15, 15), font=font)
+        # NT_TN back: right column
+        d.text((191, 86), self.maker_name,  fill=(14, 15, 15), font=font)
+        d.text((191, 124), self.model_name,  fill=(14, 15, 15), font=font)
+        d.text((191, 161), self.color,       fill=(14, 15, 15), font=font)
+        d.text((193, 199), self.body_type,   fill=(14, 15, 15), font=font)
+        seating_txt = self.seating
         if self.standing:
-            d.text(
-                (300, 234),
-                self.standing,
-                fill=(14, 15, 15),
-                font=font,
-                stroke_fill="black",
-            )
+            seating_txt += f" / {self.standing}"
         if self.sleeper:
-            d.text(
-                (345, 234),
-                self.sleeper,
-                fill=(14, 15, 15),
-                font=font,
-                stroke_fill="black",
-            )
+            seating_txt += f" / {self.sleeper}"
+        d.text((193, 237), seating_txt, fill=(14, 15, 15), font=font)
+        # NT_TN back: weight row
+        d.text((192, 277), self.unladen, fill=(14, 15, 15), font=font)
+        d.text((273, 278), self.laden,   fill=(14, 15, 15), font=font)
         if self.gross_combination:
-            d.text(
-                (335, 274),
-                self.gross_combination,
-                fill=(14, 15, 15),
-                font=font,
-                stroke_fill="black",
-            )
-        if self.rto_name:
-            d.text(
-                (468, 395),
-                self.rto_name,
-                fill=(14, 15, 15),
-                font=font,
-                stroke_fill="black",
-            )
+            d.text((358, 279), self.gross_combination, fill=(14, 15, 15), font=font)
+        # NT_TN back: cubic / hp / wheelbase row
+        d.text((192, 319), self.cubic,       fill=(14, 15, 15), font=font)
+        d.text((302, 319), self.horse_power, fill=(14, 15, 15), font=font)
+        d.text((443, 321), self.wheel_base,  fill=(14, 15, 15), font=font)
         if self.financer:
-            textwrapped = textwrap.wrap(self.financer, width=70)
-            d.text(
-                (193, 352),
-                "\n".join(textwrapped),
-                fill=(14, 15, 15),
-                font=font,
-                stroke_fill="black",
-            )
+            textwrapped = textwrap.wrap(self.financer, width=35)
+            d.text((193, 365), "\n".join(textwrapped), fill=(14, 15, 15), font=font)
+        if self.rto_name:
+            d.text((485, 399), self.rto_name, fill=(14, 15, 15), font=font)
         qr = qrcode.QRCode(
             version=5,
             error_correction=qrcode.constants.ERROR_CORRECT_M,
@@ -493,8 +316,14 @@ class OldRc(models.Model):
         super(OldRc, self).save(*args, **kwargs)
 
     def create_front_image(self):
-        media_path_front = Path(settings.MEDIA_ROOT) / "front.png"
-        img_front = Image.open(media_path_front, mode="r")
+        # OldRc always uses RC_WHITE front template
+        front_path = Path(settings.MEDIA_ROOT) / "templates" / TEMPLATE_REGISTRY["RC_WHITE"]["front"]
+        if not front_path.exists():
+            front_path = Path(settings.MEDIA_ROOT) / "front.png"
+
+        img_front = Image.open(front_path).convert("RGBA").copy()
+        if img_front.size != (677, 428):
+            img_front = img_front.resize((677, 428), Image.LANCZOS)
         d_front = ImageDraw.Draw(img_front)
         front_text_fill = (8, 9, 9)
         front_y_offset = 5
@@ -512,113 +341,42 @@ class OldRc(models.Model):
             img_front.paste(text_img, (int(xy[0]), int(xy[1] + front_y_offset)), text_img)
 
         bold_font_front = font_path(*RC_FRONT_BOLD_FONT)
-        bold = ImageFont.truetype(
-            str(bold_font_front),
-            size=24,
-        )
-        font1 = ImageFont.truetype(
-            str(bold_font_front),
-            size=17,
-        )
-        font2 = ImageFont.truetype(
-            str(bold_font_front),
-            size=17,
-        )
-        draw_short_text(
-            d_front,
-            (206, 97),
-            self.reg_number,
-            fill=(14, 15, 15),
-            font=bold,
-        )
-        draw_short_text(
-            d_front,
-            (208, 150),
-            self.chassis_number,
-            fill=front_text_fill,
-            font=font1,
-        )
-        draw_short_text(
-            d_front,
-            (208.09, 196.1),
-            self.engine_number,
-            fill=front_text_fill,
-            font=font1,
-        )
-        draw_short_text(
-            d_front,
-            (207.01, 237), self.name, fill=front_text_fill, font=font1
-        )
-        draw_short_text(
-            d_front,
-            (207.01, 282),
-            self.son_of,
-            fill=front_text_fill,
-            font=font1,
-        )
-        draw_short_text(
-            d_front,
-            (200.01, 341),
-            self.street_name,
-            fill=front_text_fill,
-            font=font2,
-        )
-        draw_short_text(
-            d_front,
-            (200.01, 361), self.city, fill=front_text_fill, font=font2
-        )
-        draw_short_text(
-            d_front,
-            (200.01, 380),
-            self.district,
-            fill=front_text_fill,
-            font=font2,
-        )
+        regular_font_front = font_path(*RC_FRONT_REGULAR_FONT)
+        narrow_font_front = font_path(*RC_FRONT_NARROW_FONT)
 
+        bold = ImageFont.truetype(str(bold_font_front), size=19)
+        font1 = ImageFont.truetype(str(regular_font_front), size=18)
+        font2 = ImageFont.truetype(str(regular_font_front), size=18)
+        address_font = ImageFont.truetype(str(narrow_font_front), size=18)
+        # RC WHITE FRONT — calibrated coordinates (677×428)
+        # Row: Reg. No. / Date of Reg.
+        draw_short_text(d_front, (204, 101), self.reg_number, fill=(14, 15, 15), font=bold)
+        draw_short_text(d_front, (461, 100), self.reg_date,   fill=front_text_fill, font=font1)
+        # Row: Chassis No. / Reg. Valid Till
+        draw_short_text(d_front, (206, 147), self.chassis_number, fill=front_text_fill, font=font1)
+        draw_short_text(d_front, (518, 151), self.reg_valid,      fill=front_text_fill, font=font1)
+        # Row: Engine No. / Owner Sr. No.
+        draw_short_text(d_front, (209, 194), self.engine_number, fill=front_text_fill, font=font1)
+        draw_short_text(d_front, (582, 191), self.serial,        fill=front_text_fill, font=font1)
+        # Row: Owner Name
+        draw_short_text(d_front, (209, 233), self.name,   fill=front_text_fill, font=font1)
+        # Row: Son/Daughter/Wife of
+        draw_short_text(d_front, (207, 281), self.son_of, fill=front_text_fill, font=font1)
+        # Address rows
+        draw_short_text(d_front, (207, 342), self.street_name, fill=front_text_fill, font=font1)
+        draw_short_text(d_front, (207, 360), self.city,        fill=front_text_fill, font=font1)
+        draw_short_text(d_front, (207, 379), self.district,    fill=front_text_fill, font=font1)
         if self.district1:
-            draw_short_text(
-                d_front,
-                (200.01, 395),
-                self.district1,
-                fill=front_text_fill,
-                font=font2,
-            )
-
+            draw_short_text(d_front, (207, 395), self.district1, fill=front_text_fill, font=font1)
+        # Left side: Fuel Used
         if self.fuel:
-            draw_short_text(
-                d_front,
-                (43.01, 274.1),
-                self.fuel,
-                fill=front_text_fill,
-                font=font1,
-            )
+            draw_short_text(d_front, (28, 278), self.fuel, fill=front_text_fill, font=font1)
 
-        draw_short_text(
-            d_front,
-            (467.01, 103.1),
-            self.reg_date,
-            fill=front_text_fill,
-            font=font1,
-        )
-        draw_short_text(
-            d_front,
-            (516.01, 151.1),
-            self.reg_valid,
-            fill=front_text_fill,
-            font=font1,
-        )
-        draw_short_text(
-            d_front,
-            (598.01, 193.1),
-            self.serial,
-            fill=front_text_fill,
-            font=font1,
-        )
-
+        # RC White front: owner_type rotated text on right edge (Card Issue Date column)
         angle = 90
-        im = Image.new("RGBA", (100, 60), 0)
+        im = Image.new("RGBA", (100, 60), (255, 255, 255, 0))
         draw = ImageDraw.Draw(im)
-        draw.text((0, 0), self.owner_type, fill=(14, 15, 15), font=font1, size=14)
+        draw.text((0, 0), self.owner_type, fill=(14, 15, 15), font=font1)
 
         qr = qrcode.QRCode(
             version=5,
@@ -634,13 +392,15 @@ class OldRc(models.Model):
         qr_img.save("QR.png")
         path = Path("QR.png")
         qr_from = Image.open(path, mode="r")
-        wpercent = 125 / float(qr_from.size[0])
+        wpercent = 100 / float(qr_from.size[0])
         hsize = int((float(qr_from.size[1]) * float(wpercent)))
-        qr_from = qr_from.resize((125, hsize), Image.LANCZOS)
+        qr_from = qr_from.resize((100, hsize), Image.LANCZOS)
 
         rot = im.rotate(angle, expand=1)
-        img_front.paste(qr_from, (517, 255))
-        img_front.paste(rot, (639, 152))
+        # RC White front: QR code sits over the hologram/chip area on the lower-left
+        img_front.paste(qr_from, (518, 275))
+        # RC White front: owner_type on the right edge vertical strip
+        img_front.paste(rot, (638, 200), rot)
 
         img_io_front = BytesIO()
         img_front.save(img_io_front, format="PNG")
@@ -650,81 +410,40 @@ class OldRc(models.Model):
         )
 
     def create_back_image(self):
-        media_path_back = Path(settings.MEDIA_ROOT) / "back.png"
-        img_back = Image.open(media_path_back, mode="r")
+        # OldRc always uses RC_WHITE back template
+        back_path = Path(settings.MEDIA_ROOT) / "templates" / TEMPLATE_REGISTRY["RC_WHITE"]["back"]
+        if not back_path.exists():
+            back_path = Path(settings.MEDIA_ROOT) / "back.png"
+        img_back = Image.open(back_path).convert("RGB").copy()
+        if img_back.size != (677, 428):
+            img_back = img_back.resize((677, 428), Image.LANCZOS)
         d_back = ImageDraw.Draw(img_back)
         bold_font_path = font_path(RC_BACK_BOLD_FONT)
-        regular_font_path = font_path(RC_BACK_REGULAR_FONT)
-        bold = ImageFont.truetype(str(bold_font_path), size=17)
-        font = ImageFont.truetype(str(regular_font_path), size=18)
-        d_back.text(
-            (226, 48), self.type, fill=(14, 15, 15), font=bold, stroke_fill="black"
-        )
-        d_back.text(
-            (40, 93), self.reg_number, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d_back.text(
-            (40, 134),
-            self.month_year_of_Mfg,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        d_back.text(
-            (40, 174), self.wheel_base, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d_back.text(
-            (40, 213), self.cubic, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d_back.text(
-            (40, 253), self.number_cylinder, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d_back.text(
-            (40, 315),
-            self.ledan_unledan,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        d_back.text(
-            (196, 93), self.maker_name, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d_back.text(
-            (196, 134), self.model_name, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d_back.text(
-            (196, 174), self.color, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d_back.text(
-            (196, 213),
-            self.body_type,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        d_back.text(
-            (196, 253), self.seating, fill=(14, 15, 15), font=font, stroke_fill="black"
-        )
-        d_back.text(
-            (196, 298),
-            self.tax_valid,
-            fill=(14, 15, 15),
-            font=font,
-            stroke_fill="black",
-        )
-        if self.rto_name:
-            d_back.text(
-                (445, 399), self.rto_name, fill=(14, 15, 15), font=font, stroke_fill="black"
-            )
+        back_font_path = font_path(RC_BACK_REGULAR_FONT)
+        bold = ImageFont.truetype(str(bold_font_path), size=15)
+        font = ImageFont.truetype(str(back_font_path), size=15)
+        # RC WHITE BACK — calibrated coordinates (677×428)
+        # Top band: vehicle class value placed after the "Vehicle Class" label
+        d_back.text((314, 27), self.type, fill=(14, 15, 15), font=font)
+        # Left column
+        d_back.text((34, 93), self.reg_number, fill=(14, 15, 15), font=bold)
+        d_back.text((36, 131), self.month_year_of_Mfg, fill=(14, 15, 15), font=font)
+        d_back.text((36, 172), self.wheel_base, fill=(14, 15, 15), font=font)
+        d_back.text((37, 211), self.cubic, fill=(14, 15, 15), font=font)
+        d_back.text((38, 251), self.number_cylinder, fill=(14, 15, 15), font=font)
+        d_back.text((37, 316), self.ledan_unledan, fill=(14, 15, 15), font=font)
+        d_back.text((195, 302), self.tax_valid, fill=(14, 15, 15), font=font)
+        # Right column
+        d_back.text((193, 92), self.maker_name, fill=(14, 15, 15), font=font)
+        d_back.text((193, 136), self.model_name, fill=(14, 15, 15), font=font)
+        d_back.text((194, 174), self.color, fill=(14, 15, 15), font=font)
+        d_back.text((193, 212), self.body_type, fill=(14, 15, 15), font=font)
+        d_back.text((195, 254), self.seating, fill=(14, 15, 15), font=font)
         if self.financer:
-            textwrapped = textwrap.wrap(self.financer, width=70)
-            d_back.text(
-                (455, 259),
-                "\n".join(textwrapped),
-                fill=(14, 15, 15),
-                font=font,
-                stroke_fill="black",
-            )
+            textwrapped = textwrap.wrap(self.financer, width=28)
+            d_back.text((466, 260), "\n".join(textwrapped), fill=(14, 15, 15), font=font)
+        if self.rto_name:
+            d_back.text((442, 398), self.rto_name, fill=(14, 15, 15), font=font)
         img_io_back = BytesIO()
         img_back.save(img_io_back, format="PNG")
         img_io_back.seek(0)

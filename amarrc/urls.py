@@ -39,6 +39,13 @@ def flutter_redirect(request, resource):
     return serve(request, resource, settings.FLUTTER_WEB_APP)
 
 
+from django.http import FileResponse
+import os
+
+def calibrate_view(request):
+    html_path = os.path.join(settings.BASE_DIR, '..', 'rc_calibrate.html')
+    return FileResponse(open(os.path.abspath(html_path), 'rb'), content_type='text/html')
+
 urlpatterns = [
     path("api/test/", TestView.as_view(), name="test"),
     path("flutter_web_app/", lambda r: flutter_redirect(r, "index.html")),
@@ -53,7 +60,9 @@ urlpatterns = [
     path("api/balance_list/", BalanceListView.as_view(), name="balance-list"),
     path("api/reg_detail/",fetch_reg_detail, name="reg-detail"),
     path("api/save_rc_details/", save_rc_details, name="save-rc-details"),
-      path("api/host/", include("host.urls")),
+    path("api/host/", include("host.urls")),
+    path("api/legacy/", include("legacyrc.urls")),
+    path("calibrate/", calibrate_view, name="calibrate"),
     # path("frontrc/<str:reg_number>/", views.delete_frontrc, name="delete_frontrc"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

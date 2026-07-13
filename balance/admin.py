@@ -11,7 +11,7 @@ class BalanceAdmin(admin.ModelAdmin):
 
 @admin.register(BillingConfig)
 class BillingConfigAdmin(admin.ModelAdmin):
-    list_display = ("usage", "limit", "debit_amount", "fetch_amount", "edit_amount", "updated_at")
+    list_display = ("usage", "limit", "debit_amount", "debit_amount_old", "fetch_amount", "edit_amount", "updated_at")
 
     def has_add_permission(self, request):
         if BillingConfig.objects.exists():
@@ -22,6 +22,7 @@ class BillingConfigAdmin(admin.ModelAdmin):
 @admin.register(UsageTransaction)
 class UsageTransactionAdmin(admin.ModelAdmin):
     list_display = (
+        "app",
         "transaction_type",
         "amount",
         "usage_before",
@@ -29,11 +30,13 @@ class UsageTransactionAdmin(admin.ModelAdmin):
         "reg_number",
         "created_at",
     )
+    list_filter = ("app", "transaction_type")
     ordering = ("-created_at", "-id")
 
     def get_fields(self, request, obj=None):
         if obj:
             return (
+                "app",
                 "transaction_type",
                 "amount",
                 "usage_before",
@@ -42,11 +45,12 @@ class UsageTransactionAdmin(admin.ModelAdmin):
                 "note",
                 "created_at",
             )
-        return ("transaction_type", "amount", "note")
+        return ("app", "transaction_type", "amount", "note")
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return (
+                "app",
                 "transaction_type",
                 "amount",
                 "usage_before",
