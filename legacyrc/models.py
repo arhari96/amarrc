@@ -106,6 +106,23 @@ class NewRc(models.Model):
         # Create front image
         media_path_front = Path(settings.MEDIA_ROOT) / "front.png"
         img_front = Image.open(media_path_front, mode="r").copy()
+        if img_front.size != (677, 428):
+            img_front = img_front.resize((677, 428), Image.LANCZOS)
+        
+        # Golden smart card chip module overlaid over chip slot
+        chip_img = Image.new("RGBA", (97, 83), (255, 255, 255, 0))
+        chip_draw = ImageDraw.Draw(chip_img)
+        chip_draw.rounded_rectangle((0, 0, 96, 82), radius=6, fill=(232, 195, 88, 255), outline=(180, 140, 40, 255), width=1)
+        line_col = (135, 95, 25, 255)
+        mid_y = 41
+        chip_draw.line([(0, mid_y), (96, mid_y)], fill=line_col, width=1)
+        w3 = 32
+        chip_draw.line([(w3, 0), (w3, 82)], fill=line_col, width=1)
+        chip_draw.line([(96 - w3, 0), (96 - w3, 82)], fill=line_col, width=1)
+        chip_draw.rounded_rectangle((w3 + 4, 4, 96 - w3 - 4, mid_y - 2), radius=3, fill=(244, 212, 114, 255), outline=line_col, width=1)
+        chip_draw.rounded_rectangle((w3 + 4, mid_y + 2, 96 - w3 - 4, 82 - 4), radius=3, fill=(244, 212, 114, 255), outline=line_col, width=1)
+        img_front.paste(chip_img, (67, 141), chip_img)
+
         d_front = ImageDraw.Draw(img_front)
 
         # Construct font paths
@@ -372,8 +389,8 @@ class NewRc(models.Model):
         qr = qrcode.QRCode(
             version=5,
             error_correction=qrcode.constants.ERROR_CORRECT_M,
-            box_size=2.5,
-            border=4,
+            box_size=4,
+            border=1,
         )
         qr.add_data(
             f"{self.reg_number},{self.reg_date},{self.engine_number},{self.chassis_number},{self.name},Registration No:{self.reg_number}\nRegistration Date:{self.reg_date}\nEngine No:{self.engine_number}\nChassis No:{self.chassis_number}\nClick URL to verify: https://qr.parivahan.gov.in/vq/qr?v=10423i3rHyHNguBu"
@@ -383,10 +400,8 @@ class NewRc(models.Model):
         qr_img.save("QR.png")
         path = Path("QR.png")
         qr_from = Image.open(path, mode="r")
-        wpercent = 125 / float(qr_from.size[0])
-        hsize = int((float(qr_from.size[1]) * float(wpercent)))
-        qr_from = qr_from.resize((125, hsize), Image.LANCZOS)
-        img_back.paste(qr_from, (32, 122))
+        qr_from = qr_from.resize((135, 135), Image.LANCZOS)
+        img_back.paste(qr_from, (34, 125))
 
         img_io_back = BytesIO()
         img_back.save(img_io_back, format="PNG")
