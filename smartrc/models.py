@@ -94,6 +94,21 @@ class NewRc(models.Model):
         ordering = ("-now",)
 
     def save(self, *args, **kwargs):
+        # Delete original image files if they exist on disk before generating new ones
+        if self.front_image and hasattr(self.front_image, "path"):
+            try:
+                if os.path.isfile(self.front_image.path):
+                    os.remove(self.front_image.path)
+            except Exception:
+                pass
+
+        if self.back_image and hasattr(self.back_image, "path"):
+            try:
+                if os.path.isfile(self.back_image.path):
+                    os.remove(self.back_image.path)
+            except Exception:
+                pass
+
         def draw_text_psd_style(
             draw, xy, text, font, tracking=0, leading=None, **kwargs
         ):
@@ -128,20 +143,6 @@ class NewRc(models.Model):
         if img_front.size != (677, 428):
             img_front = img_front.resize((677, 428), Image.LANCZOS)
         
-        # Golden smart card chip module overlaid over chip slot
-        chip_img = Image.new("RGBA", (97, 83), (255, 255, 255, 0))
-        chip_draw = ImageDraw.Draw(chip_img)
-        chip_draw.rounded_rectangle((0, 0, 96, 82), radius=6, fill=(232, 195, 88, 255), outline=(180, 140, 40, 255), width=1)
-        line_col = (135, 95, 25, 255)
-        mid_y = 41
-        chip_draw.line([(0, mid_y), (96, mid_y)], fill=line_col, width=1)
-        w3 = 32
-        chip_draw.line([(w3, 0), (w3, 82)], fill=line_col, width=1)
-        chip_draw.line([(96 - w3, 0), (96 - w3, 82)], fill=line_col, width=1)
-        chip_draw.rounded_rectangle((w3 + 4, 4, 96 - w3 - 4, mid_y - 2), radius=3, fill=(244, 212, 114, 255), outline=line_col, width=1)
-        chip_draw.rounded_rectangle((w3 + 4, mid_y + 2, 96 - w3 - 4, 82 - 4), radius=3, fill=(244, 212, 114, 255), outline=line_col, width=1)
-        img_front.paste(chip_img, (67, 141), chip_img)
-
         d_front = ImageDraw.Draw(img_front)
 
         # Construct font paths
@@ -157,21 +158,21 @@ class NewRc(models.Model):
         font2 = ImageFont.truetype(str(regular_font_path), size=18)
         address_font = ImageFont.truetype(str(narrow_font_path), size=18)
 
-        d_front.text((190, 108), self.reg_number, fill=(14, 15, 15), font=bold)
-        d_front.text((374, 112), self.reg_date, fill=(14, 15, 15), font=date_font)
-        d_front.text((541, 110), self.reg_valid, fill=(14, 15, 15), font=date_font)
-        d_front.text((191, 157), self.chassis_number, fill=(14, 15, 15), font=font1)
-        d_front.text((190, 208), self.engine_number, fill=(14, 15, 15), font=font1)
-        d_front.text((191, 260), self.name, fill=(14, 15, 15), font=font1)
-        d_front.text((192, 312), self.son_of, fill=(14, 15, 15), font=font1)
-        d_front.text((193, 361), self.street_name, fill=(14, 15, 15), font=address_font)
-        d_front.text((194, 380), self.city, fill=(14, 15, 15), font=address_font)
-        d_front.text((193, 396), self.district, fill=(14, 15, 15), font=address_font)
+        d_front.text((190, 103), self.reg_number, fill=(14, 15, 15), font=bold)
+        d_front.text((374, 107), self.reg_date, fill=(14, 15, 15), font=date_font)
+        d_front.text((541, 105), self.reg_valid, fill=(14, 15, 15), font=date_font)
+        d_front.text((191, 152), self.chassis_number, fill=(14, 15, 15), font=font1)
+        d_front.text((190, 203), self.engine_number, fill=(14, 15, 15), font=font1)
+        d_front.text((191, 255), self.name, fill=(14, 15, 15), font=font1)
+        d_front.text((192, 307), self.son_of, fill=(14, 15, 15), font=font1)
+        d_front.text((193, 356), self.street_name, fill=(14, 15, 15), font=address_font)
+        d_front.text((194, 375), self.city, fill=(14, 15, 15), font=address_font)
+        d_front.text((193, 391), self.district, fill=(14, 15, 15), font=address_font)
         if self.district1:
-            d_front.text((193, 412), self.district1, fill=(14, 15, 15), font=address_font)
+            d_front.text((193, 407), self.district1, fill=(14, 15, 15), font=address_font)
         d_front.text((14, 323), self.fuel, fill=(14, 15, 15), font=font2)
         d_front.text((15, 369), self.emission_norms, fill=(14, 15, 15), font=font2)
-        d_front.text((587, 147), self.serial, fill=(14, 15, 15), font=font2)
+        d_front.text((587, 142), self.serial, fill=(14, 15, 15), font=font2)
 
         angle = 90
         im = Image.new("RGBA", (100, 60), (255, 255, 255, 0))
@@ -180,7 +181,7 @@ class NewRc(models.Model):
         issue_date_font = ImageFont.truetype(str(regular_font_path), size=18)
         draw.text((0, 0), self.issue_date, fill=(14, 15, 15), font=issue_date_font)
         rot = im.rotate(angle, expand=1)
-        img_front.paste(rot, (637, 95), rot)
+        img_front.paste(rot, (642, 90), rot)
 
         img_io_front = BytesIO()
         img_front.save(img_io_front, format="PNG")
@@ -205,39 +206,39 @@ class NewRc(models.Model):
         bold = ImageFont.truetype(str(bold_font_path), 15)
         font = ImageFont.truetype(str(back_font_path), 15)
         d = ImageDraw.Draw(img_back)
-        d.text((34, 98), self.reg_number, fill=(14, 15, 15), font=bold)
+        d.text((34, 105), self.reg_number, fill=(14, 15, 15), font=bold)
         # NT_TN back: left column
-        d.text((34, 279), self.month_year_of_Mfg, fill=(14, 15, 15), font=font)
-        d.text((35, 319), self.number_cylinder,    fill=(14, 15, 15), font=font)
+        d.text((34, 286), self.month_year_of_Mfg, fill=(14, 15, 15), font=font)
+        d.text((35, 326), self.number_cylinder,    fill=(14, 15, 15), font=font)
         if self.number_of_Axle:
-            d.text((34, 362), self.number_of_Axle, fill=(14, 15, 15), font=font)
+            d.text((34, 369), self.number_of_Axle, fill=(14, 15, 15), font=font)
         # NT_TN back: top band vehicle class
-        d.text((288, 41), self.vehicle_class, fill=(14, 15, 15), font=font)
+        d.text((288, 48), self.vehicle_class, fill=(14, 15, 15), font=font)
         # NT_TN back: right column
-        d.text((191, 86), self.maker_name,  fill=(14, 15, 15), font=font)
-        d.text((191, 124), self.model_name,  fill=(14, 15, 15), font=font)
-        d.text((191, 161), self.color,       fill=(14, 15, 15), font=font)
-        d.text((193, 199), self.body_type,   fill=(14, 15, 15), font=font)
+        d.text((191, 93), self.maker_name,  fill=(14, 15, 15), font=font)
+        d.text((191, 131), self.model_name,  fill=(14, 15, 15), font=font)
+        d.text((191, 168), self.color,       fill=(14, 15, 15), font=font)
+        d.text((193, 206), self.body_type,   fill=(14, 15, 15), font=font)
         seating_txt = self.seating
         if self.standing:
             seating_txt += f" / {self.standing}"
         if self.sleeper:
             seating_txt += f" / {self.sleeper}"
-        d.text((193, 237), seating_txt, fill=(14, 15, 15), font=font)
+        d.text((193, 244), seating_txt, fill=(14, 15, 15), font=font)
         # NT_TN back: weight row
-        d.text((192, 277), self.unladen, fill=(14, 15, 15), font=font)
-        d.text((273, 278), self.laden,   fill=(14, 15, 15), font=font)
+        d.text((192, 284), self.unladen, fill=(14, 15, 15), font=font)
+        d.text((273, 285), self.laden,   fill=(14, 15, 15), font=font)
         if self.gross_combination:
-            d.text((358, 279), self.gross_combination, fill=(14, 15, 15), font=font)
+            d.text((358, 286), self.gross_combination, fill=(14, 15, 15), font=font)
         # NT_TN back: cubic / hp / wheelbase row
-        d.text((192, 319), self.cubic,       fill=(14, 15, 15), font=font)
-        d.text((302, 319), self.horse_power, fill=(14, 15, 15), font=font)
-        d.text((443, 321), self.wheel_base,  fill=(14, 15, 15), font=font)
+        d.text((192, 326), self.cubic,       fill=(14, 15, 15), font=font)
+        d.text((302, 326), self.horse_power, fill=(14, 15, 15), font=font)
+        d.text((443, 328), self.wheel_base,  fill=(14, 15, 15), font=font)
         if self.financer:
             textwrapped = textwrap.wrap(self.financer, width=35)
-            d.text((193, 365), "\n".join(textwrapped), fill=(14, 15, 15), font=font)
+            d.text((193, 372), "\n".join(textwrapped), fill=(14, 15, 15), font=font)
         if self.rto_name:
-            d.text((485, 399), self.rto_name, fill=(14, 15, 15), font=font)
+            d.text((485, 406), self.rto_name, fill=(14, 15, 15), font=font)
         qr = qrcode.QRCode(
             version=5,
             error_correction=qrcode.constants.ERROR_CORRECT_M,
@@ -253,7 +254,7 @@ class NewRc(models.Model):
         path = Path(f"QR.png")
         qr_from = Image.open(path, mode="r")
         qr_from = qr_from.resize((135, 135), Image.LANCZOS)
-        img_back.paste(qr_from, (34, 125))
+        img_back.paste(qr_from, (34, 130))
 
         img_io_back = BytesIO()
         img_back.save(img_io_back, format="PNG")
@@ -324,6 +325,20 @@ class OldRc(models.Model):
         ordering = ("-now",)
 
     def save(self, *args, **kwargs):
+        if self.front_image and hasattr(self.front_image, "path"):
+            try:
+                if os.path.isfile(self.front_image.path):
+                    os.remove(self.front_image.path)
+            except Exception:
+                pass
+
+        if self.back_image and hasattr(self.back_image, "path"):
+            try:
+                if os.path.isfile(self.back_image.path):
+                    os.remove(self.back_image.path)
+            except Exception:
+                pass
+
         self.create_front_image()
         self.create_back_image()
         super(OldRc, self).save(*args, **kwargs)

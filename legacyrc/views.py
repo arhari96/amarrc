@@ -158,7 +158,7 @@ def limit_error_message(action_label, amount, config):
 def handle_rc_create(raw_data, explicit_rc_type=None):
     requested_type = explicit_rc_type or raw_data.get("rc_type")
     normalized_type, payload = prepare_rc_payload(raw_data, requested_type)
-    _, _, serializer_class = get_rc_components(normalized_type)
+    _, model_class, serializer_class = get_rc_components(normalized_type)
 
     if not serializer_class:
         return Response(
@@ -166,7 +166,26 @@ def handle_rc_create(raw_data, explicit_rc_type=None):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    serializer = serializer_class(data=payload)
+    reg_number = payload.get("reg_number")
+    existing_instance = None
+    if reg_number:
+        existing_new = NewRc.objects.filter(reg_number=reg_number).first()
+        existing_old = OldRc.objects.filter(reg_number=reg_number).first()
+
+        if normalized_type == "New":
+            if existing_old:
+                existing_old.delete()
+            existing_instance = existing_new
+        elif normalized_type == "Old":
+            if existing_new:
+                existing_new.delete()
+            existing_instance = existing_old
+
+    if existing_instance:
+        serializer = serializer_class(existing_instance, data=payload)
+    else:
+        serializer = serializer_class(data=payload)
+
     if not serializer.is_valid():
         print("LEGACY SERIALIZER ERRORS:", serializer.errors, flush=True)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -175,10 +194,11 @@ def handle_rc_create(raw_data, explicit_rc_type=None):
 
     with db_transaction.atomic():
         config = get_billing_config(app="old", lock_for_update=True)
-        amount = config.debit_amount_old
+        amount = config.edit_amount if existing_instance else config.debit_amount_old
         if config.usage + amount > config.limit:
+            action_label = "Updating this RC" if existing_instance else "Creating this RC"
             return Response(
-                {"error": limit_error_message("Creating this RC", amount, config)},
+                {"error": limit_error_message(action_label, amount, config)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -191,23 +211,29 @@ def handle_rc_create(raw_data, explicit_rc_type=None):
             defaults={"data": prefill_data},
         )
 
+        txn_type = UsageTransaction.RC_EDIT if existing_instance else UsageTransaction.RC_CREATE
+        action_note = f"{normalized_type} RC updated (Legacy)" if existing_instance else f"{normalized_type} RC created (Legacy)"
+
         apply_usage_charge(
             config,
             amount,
-            UsageTransaction.RC_CREATE,
+            txn_type,
             reg_number=reg_number,
-            note=f"{normalized_type} RC created (Legacy)",
+            note=action_note,
             app="old",
         )
 
+    msg = "Updated Successfully" if existing_instance else "Created Successfully"
+    resp_status = status.HTTP_200_OK if existing_instance else status.HTTP_201_CREATED
+
     return Response(
         {
-            "message": "Created Successfully",
+            "message": msg,
             "rc_type": normalized_type,
             "reg_number": reg_number,
             "data": serializer_class(rc_instance).data,
         },
-        status=status.HTTP_201_CREATED,
+        status=resp_status,
     )
 
 
