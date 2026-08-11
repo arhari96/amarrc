@@ -11,7 +11,7 @@ class BalanceAdmin(admin.ModelAdmin):
 
 @admin.register(BillingConfig)
 class BillingConfigAdmin(admin.ModelAdmin):
-    list_display = ("usage", "limit", "debit_amount", "debit_amount_old", "fetch_amount", "edit_amount", "updated_at")
+    list_display = ("usage", "limit", "debit_amount", "debit_amount_old", "fetch_amount", "edit_amount", "limit_deduction_per_rc", "updated_at")
 
     def has_add_permission(self, request):
         if BillingConfig.objects.exists():

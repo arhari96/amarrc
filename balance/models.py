@@ -22,6 +22,10 @@ class BillingConfig(models.Model):
     debit_amount_old = models.IntegerField(default=0)
     fetch_amount = models.IntegerField(default=0)
     edit_amount = models.IntegerField(default=0)
+    limit_deduction_per_rc = models.IntegerField(
+        default=0,
+        help_text="Amount by which the limit decreases each time a brand-new RC is created.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -27,6 +27,7 @@ def build_billing_summary(app="new"):
         "debit_amount": debit_amount,
         "fetch_amount": config.fetch_amount,
         "edit_amount": config.edit_amount,
+        "limit_deduction_per_rc": config.limit_deduction_per_rc,
         "remaining_capacity": config.remaining_capacity,
         "projected_fetch_usage": config.usage + config.fetch_amount,
         "projected_create_usage": config.usage + debit_amount,
@@ -38,7 +39,9 @@ def build_billing_summary(app="new"):
     }
 
 
-def apply_usage_charge(config, amount, transaction_type, reg_number=None, note="", app="new"):
+def apply_usage_charge(
+    config, amount, transaction_type, reg_number=None, note="", app="new", deduct_limit=False
+):
     projected_usage = config.usage + amount
     if projected_usage > config.limit:
         raise BillingError("Usage limit reached. Please settle usage before continuing.")
@@ -46,7 +49,13 @@ def apply_usage_charge(config, amount, transaction_type, reg_number=None, note="
     usage_before = config.usage
     usage_after = projected_usage
     config.usage = usage_after
-    config.save(update_fields=["usage", "updated_at"])
+
+    update_fields = ["usage", "updated_at"]
+    if deduct_limit and config.limit_deduction_per_rc > 0:
+        config.limit = max(config.limit - config.limit_deduction_per_rc, config.usage)
+        update_fields.append("limit")
+
+    config.save(update_fields=update_fields)
 
     transaction = UsageTransaction(
         app=app,

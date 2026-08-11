@@ -224,6 +224,7 @@ def handle_rc_create(raw_data, explicit_rc_type=None):
             txn_type,
             reg_number=reg_number,
             note=action_note,
+            deduct_limit=not existing_instance,
         )
 
     msg = "Updated Successfully" if existing_instance else "Created Successfully"
