@@ -160,7 +160,8 @@ class NewRc(models.Model):
 
         d_front.text((190, 103), self.reg_number, fill=(14, 15, 15), font=bold)
         d_front.text((374, 107), self.reg_date, fill=(14, 15, 15), font=date_font)
-        d_front.text((541, 105), self.reg_valid, fill=(14, 15, 15), font=date_font)
+        reg_valid_x = 515 if len(str(self.reg_valid or "")) > 10 else 541
+        d_front.text((reg_valid_x, 105), self.reg_valid, fill=(14, 15, 15), font=date_font)
         d_front.text((191, 152), self.chassis_number, fill=(14, 15, 15), font=font1)
         d_front.text((190, 203), self.engine_number, fill=(14, 15, 15), font=font1)
         d_front.text((191, 255), self.name, fill=(14, 15, 15), font=font1)
