@@ -31,6 +31,7 @@ class UsageTransactionAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("app", "transaction_type")
+    search_fields = ("reg_number", "note")
     ordering = ("-created_at", "-id")
 
     def get_fields(self, request, obj=None):
